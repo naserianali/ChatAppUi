@@ -36,7 +36,7 @@ const {t} = useI18n()
 <template>
   <button :disabled="disabled" :type="type"
           :class="variantClasses"
-          class="flex items-center disabled disabled:bg-gray-300 justify-center w-full mt-4 p-2 text-center rounded gap-2 h-10">
+          class="flex items-center disabled disabled:bg-gray-300 justify-center w-full mt-4 p-2 text-center rounded gap-2 h-10 ltr:flex-row-reverse">
     <span v-if="!loading">{{ t(labelKey) }}</span>
     <Icon v-if="!loading" :name="iconName" class="size-4 mt-1"/>
     <Icon v-if="loading" name="lucide:loader-circle" class="animate-spin size-4"/>

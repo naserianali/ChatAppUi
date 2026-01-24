@@ -1,7 +1,13 @@
 {
   "text": "متن",
   "Logo": "لوگو",
-  "Welcome Back": "",
-  "Please Enter Your Detail To Sign In": "",
-  "Email": ""
+  "Welcome Back": "خوش برگشتید",
+  "Please Enter Your Detail To Sign In": "برای ورود اطلاعات خود را وارد کنید",
+  "Email": "ایمیل",
+  "Phone Number": "شماره موبایل",
+  "Password": "پسورد",
+  "submit": "ثبت",
+  "Or Continue With" : "یا ادامه با",
+  "Gmail" : "جیمیل",
+  "Github" : "گیت هاب"
 }

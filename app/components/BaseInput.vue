@@ -41,7 +41,7 @@ const eyeIcon = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-1.5 my-1.5">
+  <div class="flex flex-col gap-y-1.5 my-1.5 ltr:text-start rtl:text-end">
     <span>{{ t(labelKey) }}</span>
 
     <label :for="labelKey" class="border border-neutral-300 rounded flex items-center gap-2 p-2">
@@ -58,7 +58,7 @@ const eyeIcon = computed(() => {
           @input="handleInput"
           class="w-full outline-none bg-transparent"
       >
-      <Icon @click="togglePassword" v-if="mode === 'password' " name="lucide:eye"
+      <Icon @click="togglePassword" v-if="mode === 'password' " :name="eyeIcon"
             class="size-6 text-neutral-600 cursor-pointer"/>
     </label>
   </div>
