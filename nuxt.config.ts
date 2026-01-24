@@ -8,6 +8,10 @@ export default defineNuxtConfig({
     future: {
         compatibilityVersion: 4
     },
+    modules: [
+        '@nuxtjs/i18n',
+        '@nuxt/icon'
+    ],
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
 
@@ -31,5 +35,43 @@ export default defineNuxtConfig({
         plugins: [
             tailwindcss()
         ]
+    },
+    i18n: {
+        langDir: "locales",
+        defaultLocale: "fa",
+        strategy: 'no_prefix',
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: "i18n_locale",
+            redirectOn: "root",
+            alwaysRedirect: false,
+            fallbackLocale: "en",
+        },
+        locales: [
+            {
+                code: 'en',
+                iso: 'en-US',
+                name: "English",
+                file: "en.json",
+                dir: "ltr"
+            },
+            {
+                code: 'fa',
+                iso: 'fa-IR',
+                name: 'فارسی',
+                file: "fa.json",
+                dir: "rtl"
+            }
+        ],
+
+    },
+    icon: {
+        mode: "css",
+        cssLayer: "base",
+        serverBundle: {
+            collections:[
+                "lucide"
+            ],
+        }
     }
 })

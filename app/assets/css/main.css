@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary-50: #eef2ff;
+    --color-primary-100: #e0e7ff;
+    --color-primary-500: #6366f1;
+    --color-primary-600: #4f46e5;
+    --color-primary-700: #4338ca;
+
+    --color-secondary-500: #f43f5e;
+    --color-secondary-600: #e11d48;
+}
+
+@utility container {
+    margin-inline: auto;
+    max-width: 1360px;
+    padding: 5px;
+    border-radius: 5px;
+}
