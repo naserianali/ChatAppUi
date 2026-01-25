@@ -10,5 +10,5 @@ export function getBaseUrl(version: number = 1, route: RouteEnum) {
 }
 
 export const routes = {
-    [RouteEnum.Login]: "/auth/login",
+    [RouteEnum.Login]: "auth/login",
 }

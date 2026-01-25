@@ -41,14 +41,13 @@ const eyeIcon = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-y-1.5 my-1.5 ltr:text-start rtl:text-end">
+  <div class="flex flex-col gap-y-1.5 my-1.5 ltr:text-start text-start">
     <span>{{ t(labelKey) }}</span>
 
     <label :for="labelKey" class="border border-neutral-300 rounded flex items-center gap-2 p-2">
       <span>
         <Icon :name="iconName" class="size-4 text-neutral-600 mt-1.5"/>
       </span>
-
       <input
           :id="labelKey"
           :name="labelKey"

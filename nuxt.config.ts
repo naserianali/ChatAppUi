@@ -34,11 +34,15 @@ export default defineNuxtConfig({
     vite: {
         plugins: [
             tailwindcss()
-        ]
+        ],
+        optimizeDeps: {
+            include: ['vue-toastification'],
+        },
     },
     i18n: {
         langDir: "locales",
         defaultLocale: "fa",
+        defaultDirection: "rtl",
         strategy: 'no_prefix',
         detectBrowserLanguage: {
             useCookie: true,
@@ -69,7 +73,7 @@ export default defineNuxtConfig({
         mode: "css",
         cssLayer: "base",
         serverBundle: {
-            collections:[
+            collections: [
                 "lucide"
             ],
         }

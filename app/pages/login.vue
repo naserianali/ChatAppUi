@@ -5,7 +5,7 @@ const {t} = useI18n()
 </script>
 
 <template>
-  <div class="container flex flex-col justify-center items-center h-screen">
+  <div class="container flex flex-col justify-center items-center max-h-screen h-screen">
     <h1 class="text-2xl flex items-center justify-center gap-2 text-primary-600 font-bold mb-3">
       <Icon name="lucide:message-circle" class="size-8"/>
       {{ t("Logo") }}
@@ -14,7 +14,7 @@ const {t} = useI18n()
       {{ t("Welcome Back") }}
     </h4>
     <p class="mx-auto text-neutral-600">{{ t("Please Enter Your Detail To Sign In") }}</p>
-    <div class="lg:w-2/5 w-1/2 overflow-hidden p-4">
+    <div class="lg:w-2/5 w-full overflow-hidden p-4">
       <LoginForm/>
       <p class="mx-auto text-sm relative text-center">
         <span class="block absolute start-0 top-1/2 w-full h-0.5 bg-neutral-300 -z-1"></span>

@@ -1,5 +1,6 @@
 <template>
   <NuxtLayout>
+    <LanguageSwitcher/>
     <NuxtLoadingIndicator/>
     <NuxtRouteAnnouncer/>
     <NuxtPage/>

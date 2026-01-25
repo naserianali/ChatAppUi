@@ -2,22 +2,43 @@
 import BaseInput from "~/components/BaseInput.vue";
 import CustomButton from "~/components/CustomButton.vue";
 import {RouteEnum} from "~/utils/api";
+import {useHandleError} from "~/utils/HandleError";
 
-const emailValue = ref<string>('');
+interface ILoginResponse {
+  success: boolean;
+  data: string;
+}
+
+const phoneValue = ref<string>('');
 const passwordValue = ref<string>('');
 const isLoading = ref(false);
 const isDisabled = computed(() => {
-  return !emailValue.value || !passwordValue.value
+  return !phoneValue.value || !passwordValue.value
 })
 const handelLogin = async (e: SubmitEvent) => {
-  const formData = new FormData(e.currentTarget as HTMLFormElement);
   isLoading.value = true;
-  /*const res = await $fetch(getBaseUrl(1, RouteEnum.Login), {
-    headers: {
-      Accept: "application/json",
-    },
-    method: "POST"
-  })*/
+  try {
+    const res = await $fetch<ILoginResponse>(getBaseUrl(1, RouteEnum.Login), {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      method: "POST",
+      body: {
+        phone: phoneValue.value,
+        password: passwordValue.value,
+      }
+    });
+    isLoading.value = false;
+    const cookie = useCookie('token')
+    cookie.value = res.data
+    phoneValue.value = ""
+    passwordValue.value = ""
+    navigateTo('/')
+  } catch (err) {
+    useHandleError(err)
+    isLoading.value = false;
+  }
 }
 </script>
 
@@ -26,7 +47,7 @@ const handelLogin = async (e: SubmitEvent) => {
       @submit.prevent="handelLogin"
       class="my-6 w-full rounded">
     <BaseInput
-        v-model="emailValue"
+        v-model="phoneValue"
         label-key="Phone Number"
         icon-name="lucide:phone"
         type="text"
