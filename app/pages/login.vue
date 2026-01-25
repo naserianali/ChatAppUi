@@ -2,6 +2,10 @@
 import LoginForm from "~/components/auth/LoginForm.vue";
 
 const {t} = useI18n()
+
+definePageMeta({
+  layout: false
+})
 </script>
 
 <template>

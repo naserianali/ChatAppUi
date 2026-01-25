@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" ref="dropdown">
+  <div class="absolute" ref="dropdown">
     <button
         @click="isOpen = !isOpen"
         class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800"

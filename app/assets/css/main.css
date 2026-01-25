@@ -9,6 +9,12 @@
 
     --color-secondary-500: #f43f5e;
     --color-secondary-600: #e11d48;
+
+    --color-body: #f8fafc;
+    --color-white: #ffffff;
+    --color-text-main: #1e293b;
+    --color-text-muted: #64748b;
+    --color-border-color: #e2e8f0;
 }
 
 @utility container {

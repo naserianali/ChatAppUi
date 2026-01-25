@@ -5,14 +5,16 @@ interface Props {
   type?: string
   placeholder?: string
   modelValue?: string,
-  mode?: string
+  mode?: string,
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'text',
   placeholder: '',
   modelValue: '',
-  mode: "text"
+  mode: "text",
+  size: 'md',
 })
 
 const emit = defineEmits<{
@@ -42,9 +44,15 @@ const eyeIcon = computed(() => {
 
 <template>
   <div class="flex flex-col gap-y-1.5 my-1.5 ltr:text-start text-start">
-    <span>{{ t(labelKey) }}</span>
+    <span v-if="size !== 'sm'">{{ t(labelKey) }}</span>
 
-    <label :for="labelKey" class="border border-neutral-300 rounded flex items-center gap-2 p-2">
+    <label :for="labelKey" class="border border-neutral-300 rounded flex items-center gap-2"
+           :class="{
+    'p-0.5': size === 'sm',
+    'p-2': size === 'md',
+    'p-3': size === 'lg'
+  }"
+    >
       <span>
         <Icon :name="iconName" class="size-4 text-neutral-600 mt-1.5"/>
       </span>

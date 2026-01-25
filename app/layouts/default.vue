@@ -2,8 +2,9 @@
 </script>
 
 <template>
-  <div class="container px-5 py-3 h-screen overflow-hidden">
-      <IndexContact/>
+  <div class="bg-body">
+
+    <slot />
   </div>
 </template>
 
