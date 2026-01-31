@@ -23,10 +23,13 @@ const {t} = useI18n()
           labelKey="search"
           iconName="lucide:search"
           type="text"
-          placeholder="placeholder"
+          placeholder="search..."
           mode="text"
           size="sm"
       />
+    </div>
+    <div class="mt-6">
+      <IndexConversationList/>
     </div>
   </aside>
 </template>

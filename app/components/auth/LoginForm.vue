@@ -6,7 +6,13 @@ import {useHandleError} from "~/utils/HandleError";
 
 interface ILoginResponse {
   success: boolean;
-  data: string;
+  data: {
+    token: string;
+    user: {
+      id: string;
+      name: string;
+    }
+  };
 }
 
 const phoneValue = ref<string>('');
@@ -31,7 +37,9 @@ const handelLogin = async (e: SubmitEvent) => {
     });
     isLoading.value = false;
     const cookie = useCookie('token')
-    cookie.value = res.data
+    cookie.value = res.data.token
+    const user = useCookie("user")
+    user.value = JSON.stringify(res.data.user)
     phoneValue.value = ""
     passwordValue.value = ""
     navigateTo('/')
