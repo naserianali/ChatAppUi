@@ -8,7 +8,7 @@
              active:scale-95 bg-transparent"
         :aria-expanded="isOpen"
     >
-      <Icon name="material-symbols:language" class="w-5 h-5 text-gray-500" />
+      <Icon name="material-symbols:language" class="w-5 h-5 text-gray-500"/>
       <span class="text-sm font-bold uppercase tracking-wide">{{ locale }}</span>
       <Icon
           name="material-symbols:keyboard-arrow-down"
@@ -56,17 +56,11 @@
 </template>
 
 <script setup lang="ts">
-/**
- * Requirements:
- * 1. npm install @vueuse/nuxt
- * 2. Add '@vueuse/nuxt' to modules in nuxt.config.ts
- */
 
-const { locale, locales, setLocale } = useI18n()
+const {locale, locales, setLocale} = useI18n()
 const isOpen = ref(false)
 const target = ref(null)
 
-// Auto-imported by @vueuse/nuxt
 onClickOutside(target, () => (isOpen.value = false))
 
 const availableLocales = computed(() => {
@@ -77,13 +71,12 @@ const availableLocales = computed(() => {
   }))
 })
 
-const changeLang = async (code: string) => {
+const changeLang = async (code: "fa" | "en") => {
   if (locale.value === code) return (isOpen.value = false)
 
   await setLocale(code)
   isOpen.value = false
 
-  // Sync HTML direction (LTR/RTL)
   const selected = availableLocales.value.find(l => l.code === code)
   if (selected) {
     useHead({
