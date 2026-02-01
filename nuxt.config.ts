@@ -10,11 +10,19 @@ export default defineNuxtConfig({
     },
     modules: [
         '@nuxtjs/i18n',
-        '@nuxt/icon'
+        '@vueuse/nuxt',
+        '@nuxt/icon',
+        '@pinia/nuxt',
+        'pinia-plugin-persistedstate/nuxt'
     ],
+    pinia: {
+        storesDirs: ['./app/stores/**'],
+    },
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
-
+    vueuse: {
+        autoImports: true,
+    },
     runtimeConfig: {
         public: {
             apiBase: "http://localhost:8000/api",

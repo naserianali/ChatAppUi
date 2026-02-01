@@ -2,6 +2,8 @@
 export enum RouteEnum {
     Login = 'login',
     ConversationList = "conversationList",
+    ContactList = "contactList",
+    CreateContact = "createContact",
 }
 
 function getBaseRoute(){
@@ -16,4 +18,6 @@ export function getBaseUrl(version: number = 1, route: RouteEnum) {
 export const routes = {
     [RouteEnum.Login]: "auth/login",
     [RouteEnum.ConversationList]: "application/conversations",
+    [RouteEnum.ContactList]: "application/contacts",
+    [RouteEnum.CreateContact]: "application/contacts",
 }

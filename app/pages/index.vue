@@ -3,7 +3,7 @@
 
 <template>
   <div class="container px-5 py-3 h-screen overflow-hidden">
-      <IndexContact/>
+      <IndexSidebar/>
   </div>
 </template>
 
