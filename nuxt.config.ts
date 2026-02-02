@@ -25,7 +25,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            apiBase: "http://localhost:4000/api",
+            apiBase: "http://localhost:8000/api",
             maxFileSize: 5 * 1024 * 1024,
         }
     },

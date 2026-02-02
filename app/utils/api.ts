@@ -1,23 +1,33 @@
-
 export enum RouteEnum {
     Login = 'login',
     ConversationList = "conversationList",
     ContactList = "contactList",
     CreateContact = "createContact",
+    GetConversation = "getConversation",
+    SendMessage = "sendMessage",
 }
 
-function getBaseRoute(){
+function getBaseRoute() {
     return useRuntimeConfig().public.apiBase;
 }
 
-export function getBaseUrl(version: number = 1, route: RouteEnum) {
+export function getBaseUrl(version: number = 1, route: RouteEnum, params?: Record<string, string | number>) {
     const url = getBaseRoute() + `/v${version}/`
-    return url + (routes[route] ?? '')
+    let path = routes[route] ?? ''
+    if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+            path = path.replace(`{${key}}`, String(value))
+        })
+    }
+
+    return url + path
 }
 
 export const routes = {
     [RouteEnum.Login]: "auth/login",
-    [RouteEnum.ConversationList]: "application/conversations",
     [RouteEnum.ContactList]: "application/contacts",
     [RouteEnum.CreateContact]: "application/contacts",
+    [RouteEnum.ConversationList]: "application/conversations",
+    [RouteEnum.GetConversation]: "application/conversations/{conversationId}/messages",
+    [RouteEnum.SendMessage]: "application/conversations/{conversationId}/messages",
 }
