@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useUiStore } from "~/stores/ui";
-
 const { t } = useI18n()
 const uiStore = useUiStore()
 
@@ -19,21 +18,21 @@ const goBack = () => uiStore.setView('conversations')
 
 <template>
   <aside
-      class="h-full bg-white shadow-lg p-4 flex flex-col transition-all duration-300
-           fixed inset-0 z-30 w-full
-           md:relative md:translate-x-0 md:w-4/12 lg:w-3/12"
+      class="h-full bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col transition-all duration-300
+           fixed inset-y-0 left-0 z-30 w-full
+           md:relative md:translate-x-0 md:w-[350px] lg:w-[400px] shrink-0"
       :class="[uiStore.activeChatId ? 'hidden md:flex' : 'flex']"
   >
-    <div class="flex items-center justify-between gap-2">
+    <div class="p-4 flex items-center justify-between gap-2 border-b border-gray-50 dark:border-gray-800">
       <div class="flex items-center gap-2 overflow-hidden">
         <button
             v-if="uiStore.sidebarView !== 'conversations'"
             @click="goBack"
-            class="p-2 hover:bg-gray-100 rounded-full shrink-0"
+            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full shrink-0 transition-colors"
         >
           <Icon name="lucide:arrow-left" class="size-5" />
         </button>
-        <h1 class="text-xl md:text-2xl font-bold truncate">
+        <h1 class="text-xl font-bold truncate dark:text-white">
           {{ uiStore.sidebarView === 'conversations' ? t("Chats") : t("Contacts") }}
         </h1>
       </div>
@@ -42,21 +41,22 @@ const goBack = () => uiStore.setView('conversations')
           :labelKey="uiStore.sidebarView === 'conversations' ? 'New' : 'Add'"
           :iconName="uiStore.sidebarView === 'conversations' ? 'lucide:plus' : 'lucide:user-plus'"
           variant="primary"
-          class="!w-fit !px-3 md:!px-4"
+          class="!w-fit !px-3 !py-1.5 text-sm"
           @click="handleHeaderAction"
       />
     </div>
 
-    <div class="mt-4">
+    <div class="px-4 py-3">
       <BaseInput
           labelKey=""
           iconName="lucide:search"
           :placeholder="t('Search...')"
           size="sm"
+          class="bg-gray-50 dark:bg-gray-800"
       />
     </div>
 
-    <div class="mt-4 flex-1 overflow-y-auto custom-scrollbar">
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
       <IndexConversationList v-if="uiStore.sidebarView === 'conversations'" />
       <IndexContactList v-else-if="uiStore.sidebarView === 'contacts'" />
     </div>
@@ -70,13 +70,3 @@ const goBack = () => uiStore.setView('conversations')
     </BaseModal>
   </aside>
 </template>
-
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 10px;
-}
-</style>

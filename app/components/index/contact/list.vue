@@ -14,18 +14,12 @@ const {data: response, pending, error} = await useFetch<any>(getBaseUrl(1, Route
   }
 })
 
-/**
- * Helper to find the "Other User" in a private conversation
- */
 const getContactInfo = (conversation: any) => {
   return conversation.users.find((u: any) => u.id !== currentUser?.id) || conversation.users[0]
 }
 
 const selectConversation = (id: string) => {
-  // 1. Set the active conversation in a store (if you have a chat store)
-  // 2. Navigate back to conversation view
   uiStore.setView('conversations')
-  // 3. Potentially navigate to the route:
   navigateTo(`/chat/${id}`)
 }
 </script>
