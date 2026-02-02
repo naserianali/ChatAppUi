@@ -57,7 +57,7 @@ onUnmounted(() => {
           </p>
         </div>
         <span class="text-xs text-gray-400">
-          {{ new Date(conv.updated_at).toLocaleTimeString() }}
+          {{ new Date(conv.updated_at).toLocaleString('fa-IR').replace("," , " |") }}
         </span>
       </li>
     </ul>

@@ -1,7 +1,7 @@
 export const useUiStore = defineStore('ui', {
     state: () => ({
         sidebarView: 'conversations',
-        activeChatId: null as string | null, // Track if a chat is open
+        activeChatId: null as string | null,
     }),
     actions: {
         setView(view: 'conversations' | 'contacts') {
@@ -10,5 +10,5 @@ export const useUiStore = defineStore('ui', {
         setActiveChat(id: string | null) {
             this.activeChatId = id
         }
-    }
+    },
 })
