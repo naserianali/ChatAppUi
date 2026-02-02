@@ -7,7 +7,6 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['close'])
 
-// Close on Escape key
 const handleKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Escape' && props.show) {
     emit('close')
@@ -54,7 +53,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 </template>
 
 <style scoped>
-/* Overlay Transition */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }
@@ -62,7 +60,6 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   opacity: 0;
 }
 
-/* Modal Content Transition */
 .scale-enter-active, .scale-leave-active {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
