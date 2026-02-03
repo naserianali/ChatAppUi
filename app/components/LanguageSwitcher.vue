@@ -4,11 +4,11 @@
         @click="isOpen = !isOpen"
         type="button"
         class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all
-             hover:bg-gray-100 dark:hover:bg-gray-800
-             active:scale-95 bg-transparent"
+             hover:bg-neutral-100 dark:hover:bg-neutral-800
+             active:scale-95 bg-transparent text-neutral-900 dark:text-neutral-100"
         :aria-expanded="isOpen"
     >
-      <Icon name="material-symbols:language" class="w-5 h-5 text-gray-500"/>
+      <Icon name="material-symbols:language" class="w-5 h-5 text-neutral-500 dark:text-neutral-400"/>
       <span class="text-sm font-bold uppercase tracking-wide">{{ locale }}</span>
       <Icon
           name="material-symbols:keyboard-arrow-down"
@@ -27,20 +27,24 @@
     >
       <div
           v-if="isOpen"
-          class="absolute left-0 top-full mt-2 z-[100] min-w-[140px]
-               bg-white dark:bg-gray-900
-               border border-gray-200 dark:border-gray-800
+          class="absolute end-0 top-full mt-2 z-[100] min-w-[150px]
+               bg-white dark:bg-neutral-900
+               border border-neutral-200 dark:border-neutral-800
                rounded-xl shadow-2xl shadow-black/10
-               backdrop-blur-sm overflow-hidden"
+               backdrop-blur-md overflow-hidden"
       >
         <div class="flex flex-col p-1">
           <button
               v-for="loc in availableLocales"
               :key="loc.code"
-              @click="changeLang(loc.code)"
+              @click="changeLang(loc.code as 'fa' | 'en')"
               class="group w-full text-start px-3 py-2.5 text-sm rounded-lg flex items-center justify-between gap-4
-                   transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-              :class="{ 'bg-gray-50 dark:bg-gray-800/50 text-blue-600 dark:text-blue-400': locale === loc.code }"
+                   transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              :class="[
+                locale === loc.code
+                ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400'
+                : 'text-neutral-700 dark:text-neutral-300'
+              ]"
           >
             <span class="font-medium">{{ loc.name }}</span>
             <Icon
@@ -56,8 +60,7 @@
 </template>
 
 <script setup lang="ts">
-
-const {locale, locales, setLocale} = useI18n()
+const { locale, locales, setLocale } = useI18n()
 const isOpen = ref(false)
 const target = ref(null)
 
@@ -71,20 +74,27 @@ const availableLocales = computed(() => {
   }))
 })
 
-const changeLang = async (code: "fa" | "en") => {
-  if (locale.value === code) return (isOpen.value = false)
+const currentLocaleData = computed(() =>
+    availableLocales.value.find(l => l.code === locale.value)
+)
 
-  await setLocale(code)
-  isOpen.value = false
-
-  const selected = availableLocales.value.find(l => l.code === code)
-  if (selected) {
+watch(locale, () => {
+  if (currentLocaleData.value) {
     useHead({
       htmlAttrs: {
-        dir: selected.dir,
-        lang: selected.code
+        dir: currentLocaleData.value.dir,
+        lang: currentLocaleData.value.code
       }
     })
   }
+}, { immediate: true })
+
+const changeLang = async (code: "fa" | "en") => {
+  if (locale.value === code) {
+    isOpen.value = false
+    return
+  }
+  await setLocale(code)
+  isOpen.value = false
 }
 </script>

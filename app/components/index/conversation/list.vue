@@ -28,7 +28,8 @@ const {data: response, pending} = useFetch(getBaseUrl(1, RouteEnum.ConversationL
 onMounted(() => {
   if (user && user.id) {
     $echo.private(`users.${user.id}`)
-        .listen("NewConversationCreated", (event: any) => {
+        .listen("new.conversation", (event: any) => {
+          console.log(event)
           if (response.value?.data) {
             response.value.data.unshift(event.conversation);
           }
