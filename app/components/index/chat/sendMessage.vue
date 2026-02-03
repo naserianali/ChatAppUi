@@ -26,7 +26,7 @@ const handleSendMessage = async () => {
     })
     message.value = ''
     emit('messageSent');
-    refreshNuxtData(`chat-data-${uiStore.activeChatId}`);
+    await refreshNuxtData(`chat-data-${uiStore.activeChatId}`);
   } catch (error) {
     console.error("Failed to send message:", error)
   } finally {
@@ -49,15 +49,16 @@ const handleSendMessage = async () => {
             :disabled="!uiStore.activeChatId || isLoading"
         />
       </div>
-
-      <CustomButton
-          type="submit"
-          label-key="Send"
-          icon-name="lucide:send"
-          variant="primary"
-          :loading="isLoading"
-          :disabled="!message.trim() || !uiStore.activeChatId"
-      />
+      <div class="mt-2">
+        <CustomButton
+            type="submit"
+            label-key="Send"
+            icon-name="lucide:send"
+            variant="primary"
+            :loading="isLoading"
+            :disabled="!message.trim() || !uiStore.activeChatId"
+        />
+      </div>
     </form>
   </footer>
 </template>

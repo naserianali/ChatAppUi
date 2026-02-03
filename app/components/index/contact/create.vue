@@ -37,8 +37,8 @@ const handleAddContact = async () => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <p class="text-sm text-gray-500">
+  <div class="space-y-5">
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
       {{ t('Enter the phone number to start a conversation.') }}
     </p>
 
@@ -50,19 +50,19 @@ const handleAddContact = async () => {
         iconName="lucide:phone"
     />
 
-    <div class="flex gap-2 pt-2">
+    <div class="flex flex-col sm:flex-row gap-2 pt-2">
       <CustomButton
           iconName=""
           labelKey="Cancel"
           variant="border"
-          class="flex-1"
-          @click="$emit('success')"
+          class="flex-1 order-2 sm:order-1"
+          @click="emit('success')"
       />
       <CustomButton
           iconName=""
           labelKey="Add"
           variant="primary"
-          class="flex-1"
+          class="flex-1 order-1 sm:order-2"
           :loading="loading"
           @click="handleAddContact"
       />

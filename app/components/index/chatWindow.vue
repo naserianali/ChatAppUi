@@ -11,7 +11,6 @@ const user = useCookie<any>('user').value
 const token = useCookie('token').value
 const messagesContainer = ref<HTMLElement | null>(null)
 
-// 1. Fetching logic - Returns the 'refresh' function we need for Echo
 const { data: conversationData, pending, refresh } = useFetch(() => {
   if (!activeChatId.value) return null
   return getBaseUrl(1, RouteEnum.GetConversation, {
@@ -26,15 +25,12 @@ const { data: conversationData, pending, refresh } = useFetch(() => {
   watch: [activeChatId]
 })
 
-// 2. Echo Listener Logic
 const setupEchoListeners = (id: string) => {
   $echo.private(`conversations.${id}`)
-      // Listen for New Messages
       .listen('MessageSent', (e: any) => {
         console.log('New message detected, refetching...')
-        refresh() // Simply re-fetch the useFetch data
+        refresh()
       })
-      // Listen for Read Status
       .listen('MessageReadEvent', (e: any) => {
         console.log('Messages read, refetching...')
         refresh()
@@ -45,7 +41,6 @@ const leaveEchoChannel = (id: string) => {
   $echo.leave(`conversations.${id}`)
 }
 
-// 3. Lifecycle & Watchers
 watch(activeChatId, (newId, oldId) => {
   if (oldId) leaveEchoChannel(oldId)
   if (newId) setupEchoListeners(newId)
@@ -59,7 +54,6 @@ onUnmounted(() => {
   if (activeChatId.value) leaveEchoChannel(activeChatId.value)
 })
 
-// Auto-scroll to bottom when new data arrives
 watch(() => conversationData.value, () => {
   nextTick(() => {
     if (messagesContainer.value) {
@@ -95,7 +89,7 @@ watch(() => conversationData.value, () => {
             v-for="msg in conversationData?.data"
             :key="msg.id"
             :class="['max-w-[75%] p-3 rounded-2xl text-sm shadow-sm transition-all',
-            msg.user_id === user?.id
+            msg.sender_id === user?.id
               ? 'ml-auto bg-blue-600 text-white rounded-tr-none'
               : 'mr-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none']"
         >

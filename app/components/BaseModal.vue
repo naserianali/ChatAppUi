@@ -22,27 +22,29 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
     <Transition name="fade">
       <div
           v-if="show"
-          class="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          class="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm transition-all"
           @click.self="emit('close')"
       >
-        <Transition name="scale">
+        <Transition name="slide-up">
           <div
               v-if="show"
-              class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden"
+              class="w-full max-w-md bg-white dark:bg-neutral-900 rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden transition-colors duration-300"
               role="dialog"
               aria-modal="true"
           >
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h3 class="text-lg font-bold text-gray-800">{{ title }}</h3>
+            <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800">
+              <h3 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">
+                {{ title }}
+              </h3>
               <button
                   @click="emit('close')"
-                  class="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                  class="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors"
               >
                 <Icon name="lucide:x" class="size-5" />
               </button>
             </div>
 
-            <div class="p-6">
+            <div class="p-6 max-h-[80vh] overflow-y-auto text-neutral-600 dark:text-neutral-300">
               <slot />
             </div>
           </div>
@@ -54,17 +56,25 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
 
-.scale-enter-active, .scale-leave-active {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+.slide-up-enter-active, .slide-up-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.scale-enter-from, .scale-leave-to {
+
+.slide-up-enter-from, .slide-up-leave-to {
   opacity: 0;
-  transform: scale(0.9) translateY(10px);
+  transform: translateY(100%);
+}
+
+@media (min-width: 640px) {
+  .slide-up-enter-from, .slide-up-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
 }
 </style>

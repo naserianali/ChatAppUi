@@ -28,9 +28,9 @@ const goBack = () => uiStore.setView('conversations')
         <button
             v-if="uiStore.sidebarView !== 'conversations'"
             @click="goBack"
-            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full shrink-0 transition-colors"
+            class="hover:bg-gray-100 h-fit w-fit dark:hover:bg-gray-800 rounded-full shrink-0 transition-colors flex items-center"
         >
-          <Icon name="lucide:arrow-left" class="size-5" />
+          <Icon name="lucide:arrow-left" class="size-5 dark:text-white" />
         </button>
         <h1 class="text-xl font-bold truncate dark:text-white">
           {{ uiStore.sidebarView === 'conversations' ? t("Chats") : t("Contacts") }}

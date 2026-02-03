@@ -53,7 +53,8 @@ const handelLogin = async (e: SubmitEvent) => {
 <template>
   <form
       @submit.prevent="handelLogin"
-      class="my-6 w-full rounded">
+      class="p-4 sm:p-6 w-full rounded-xl bg-transparent space-y-4">
+
     <BaseInput
         v-model="phoneValue"
         label-key="Phone Number"
@@ -61,6 +62,7 @@ const handelLogin = async (e: SubmitEvent) => {
         type="text"
         placeholder="09120000000"
     />
+
     <BaseInput
         v-model="passwordValue"
         label-key="Password"
@@ -69,14 +71,18 @@ const handelLogin = async (e: SubmitEvent) => {
         mode="password"
         placeholder="********"
     />
-    <CustomButton
-        label-key="submit"
-        icon-name="lucide:arrow-right"
-        type="submit"
-        :loading="isLoading"
-        :disabled="isDisabled"
-        variant="primary"
-    />
+
+    <div class="pt-2">
+      <CustomButton
+          label-key="submit"
+          icon-name="lucide:arrow-right"
+          type="submit"
+          class="w-full"
+          :loading="isLoading"
+          :disabled="isDisabled"
+          variant="primary"
+      />
+    </div>
   </form>
 </template>
 
