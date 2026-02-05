@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@import "vazirmatn/misc/Farsi-Digits/Vazirmatn-FD-font-face.css";
 @theme {
     --color-primary-50: #eef2ff;
     --color-primary-100: #e0e7ff;
@@ -22,4 +22,7 @@
     max-width: 1360px;
     padding: 0 5px;
     border-radius: 5px;
+}
+body{
+    font-family: Vazirmatn FD;
 }

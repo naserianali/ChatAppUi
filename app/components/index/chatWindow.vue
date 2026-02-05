@@ -115,7 +115,7 @@ onUnmounted(() => {
             v-for="msg in conversationData?.data"
             :key="msg.id"
             :class="[
-            'max-w-[85%] md:max-w-[70%] p-3 rounded-2xl text-sm shadow-sm transition-all flex flex-col',
+            'max-w-[85%] md:max-w-[50%] p-3 rounded-2xl text-sm shadow-sm transition-all flex flex-col',
             msg.sender_id === user?.id
               ? 'ms-auto bg-blue-600 text-white rounded-tr-none'
               : 'me-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-700'
