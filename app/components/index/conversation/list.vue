@@ -18,7 +18,8 @@ if (!token) {
   navigateTo('/login');
 }
 
-const {data: response, pending} = useFetch(getBaseUrl(1, RouteEnum.ConversationList), {
+const {data: response, pending, refresh} = useFetch(getBaseUrl(1, RouteEnum.ConversationList), {
+  key: "conversations",
   headers: {
     Accept: 'application/json',
     Authorization: 'Bearer ' + token,
@@ -28,11 +29,12 @@ const {data: response, pending} = useFetch(getBaseUrl(1, RouteEnum.ConversationL
 onMounted(() => {
   if (user && user.id) {
     $echo.private(`users.${user.id}`)
-        .listen("new.conversation", (event: any) => {
+        .subscribed(() => {
+          console.log("Successfully subscribed to private channel!");
+        })
+        .listen(".new.conversation", async (event: any) => {
           console.log(event)
-          if (response.value?.data) {
-            response.value.data.unshift(event.conversation);
-          }
+          await refresh();
         })
   }
 })
@@ -43,8 +45,8 @@ onUnmounted(() => {
   }
 })
 
-const openConversation = (id: string) => {
-  uiStore.setActiveChat(id);
+const openConversation = (id: string, name: string) => {
+  uiStore.setActiveChat(id, name);
 }
 </script>
 
@@ -63,7 +65,7 @@ const openConversation = (id: string) => {
       <li
           v-for="conv in response?.data"
           :key="conv.id"
-          @click="openConversation(conv.id)"
+          @click="openConversation(conv.id , conv.users?.filter((u: any) => u.id !== user?.id)[0]?.name)"
           :class="[
              'p-4 border rounded-xl cursor-pointer flex justify-between gap-3 transition-all duration-200 active:scale-[0.99]',
              uiStore.activeChatId === conv.id
@@ -76,7 +78,7 @@ const openConversation = (id: string) => {
             {{ conv.users?.filter((u: any) => u.id !== user?.id)[0]?.name || t("Private Chat") }}
           </p>
           <p class="text-sm text-neutral-500 dark:text-neutral-400 truncate mt-0.5 max-w-[220px] sm:max-w-full">
-            {{ conv.messages?.[0]?.content || t("No messages yet...") }}
+            {{ conv.messages?.[0]?.body || t("No messages yet...") }}
           </p>
         </div>
 
@@ -89,7 +91,7 @@ const openConversation = (id: string) => {
     </ul>
 
     <div v-if="response?.data?.length === 0 && !pending" class="text-center py-20 flex flex-col items-center">
-      <Icon name="lucide:message-square-dashed" class="size-12 text-neutral-300 dark:text-neutral-700 mb-3" />
+      <Icon name="lucide:message-square-dashed" class="size-12 text-neutral-300 dark:text-neutral-700 mb-3"/>
       <p class="text-neutral-500 dark:text-neutral-400 font-medium">
         {{ t("No conversations found.") }}
       </p>

@@ -36,7 +36,7 @@ const handleSendMessage = async () => {
 </script>
 
 <template>
-  <footer class="p-4 border-t bg-white dark:bg-gray-900 dark:border-gray-800">
+  <footer class="p-4 bg-white dark:bg-gray-900">
     <form @submit.prevent="handleSendMessage" class="flex items-end gap-x-2">
 
       <div class="flex-1">
@@ -45,7 +45,8 @@ const handleSendMessage = async () => {
             label-key="Type a message..."
             icon-name="lucide:message-square"
             placeholder="Write something..."
-            size="sm"
+            size="md"
+            mode="no-label"
             :disabled="!uiStore.activeChatId || isLoading"
         />
       </div>

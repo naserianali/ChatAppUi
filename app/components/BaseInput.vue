@@ -55,9 +55,10 @@ const sizeClasses = computed(() => ({
 <template>
   <div class="flex flex-col w-full gap-1.5 ltr:text-start rtl:text-right">
     <span
-        v-if="size !== 'sm'"
+        v-if="mode !== 'no-label'"
         class="text-neutral-700 dark:text-neutral-300 font-medium text-sm md:text-base transition-colors"
     >
+      {{mode === "no-label"}}
       {{ t(labelKey) }}
     </span>
 

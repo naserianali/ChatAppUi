@@ -52,6 +52,7 @@ const goBack = () => uiStore.setView('conversations')
           iconName="lucide:search"
           :placeholder="t('Search...')"
           size="sm"
+          mode="no-label"
           class="bg-gray-50 dark:bg-gray-800"
       />
     </div>

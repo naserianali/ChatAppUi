@@ -5,9 +5,8 @@ import {useUiStore} from "~/stores/ui";
 const { t } = useI18n()
 const uiStore = useUiStore()
 const token = useCookie('token').value
-const currentUser = useCookie<{ id: string }>('user').value
 
-const {data: response, pending, error} = await useFetch<any>(getBaseUrl(1, RouteEnum.ConversationList), {
+const {data: response, pending, error} = await useFetch<any>(getBaseUrl(1, RouteEnum.ContactList), {
   key: "contact-list",
   headers: {
     Accept: 'application/json',
@@ -15,8 +14,8 @@ const {data: response, pending, error} = await useFetch<any>(getBaseUrl(1, Route
   }
 })
 
-const getContactInfo = (conversation: any) => {
-  return conversation.users.find((u: any) => u.id !== currentUser?.id) || conversation.users[0]
+const getInitials = (name: string) => {
+  return name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : '?'
 }
 
 const selectConversation = (id: string) => {
@@ -50,17 +49,17 @@ const selectConversation = (id: string) => {
         <div
             class="size-12 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400
                    flex items-center justify-center font-bold shrink-0 border border-primary-200 dark:border-primary-800/50">
-          {{ getContactInfo(item).first_name[0] }}{{ getContactInfo(item).last_name[0] }}
+          {{ getInitials(item.name) }}
         </div>
 
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between">
             <h3 class="text-sm md:text-base font-semibold text-neutral-900 dark:text-neutral-100 truncate">
-              {{ getContactInfo(item).first_name }} {{ getContactInfo(item).last_name }}
+              {{ item.name }}
             </h3>
           </div>
           <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
-            {{ getContactInfo(item).phone }}
+            {{ item.id }}
           </p>
         </div>
 
