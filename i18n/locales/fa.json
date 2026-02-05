@@ -12,6 +12,7 @@
   "Github": "گیت هاب",
   "Messages": "پیام ها",
   "Chats": "چت",
+  "Contacts": "مخاطبین",
   "Loading conversations...": "در حال لود گفتوگو ها...",
   "Private Chat": "چت شخصی",
   "No messages yet...": "پیامی هنوز ثبت نشده...",
@@ -22,7 +23,11 @@
   "Enter the phone number to start a conversation.": "شماره را وارد کنید تا یک گفتوگو ایجاد شود.",
   "Cancel": "انصراف",
   "Add": "افزودن",
-  "Add New Contact": "افزودن مخاصب جدید",
+  "Add New Contact": "افزودن مخاطب جدید",
   "New": "جدید",
-  "No conversation selected" :"گفتوگویی انتخاب نشده."
+  "No conversation selected": "گفتوگویی انتخاب نشده.",
+  "Search...": "جستوجو...",
+  "Failed to load contacts": "خطا در بارگذاری مخاطبین",
+  "No contacts found": "مخاطبی یافت نشد",
+  "Add a contact to start chatting": "برای شروع چت یک مخاطب اضافه کنید"
 }

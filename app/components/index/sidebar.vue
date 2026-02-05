@@ -50,7 +50,7 @@ const goBack = () => uiStore.setView('conversations')
       <BaseInput
           labelKey=""
           iconName="lucide:search"
-          :placeholder="t('Search...')"
+          placeholder="Search..."
           size="sm"
           mode="no-label"
           class="bg-gray-50 dark:bg-gray-800"

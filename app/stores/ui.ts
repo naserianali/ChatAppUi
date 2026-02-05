@@ -1,4 +1,3 @@
-// stores/ui.ts
 import {defineStore} from 'pinia'
 
 export const useUiStore = defineStore('ui', {
@@ -12,8 +11,13 @@ export const useUiStore = defineStore('ui', {
             this.sidebarView = view
         },
         setActiveChat(id: string | null, name: string | null) {
-            this.activeChatId = id
-            this.name = name
+            if (id === null){
+                this.activeChatId = null
+                this.name = null
+                return
+            }
+            this.activeChatId = id;
+            this.name = name;
         }
     },
 })

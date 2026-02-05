@@ -11,7 +11,7 @@ export default defineNuxtPlugin(() => {
         wsPort: 8080,
         forceTLS: false,
         enabledTransports: ['ws', 'wss'],
-        authEndpoint: 'http://localhost:8000/broadcasting/auth',
+        authEndpoint: 'http://localhost:4000/broadcasting/auth',
         withCredentials: true,
         auth: {
             headers: {
