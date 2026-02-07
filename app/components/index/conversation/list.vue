@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import {getBaseUrl, RouteEnum} from "~/utils/api";
 import {useUiStore} from "~/stores/ui";
+import type {UserType} from "~/types/user.type";
 
-interface IUser {
-  id: string,
-  name: string,
-}
 
 const {t} = useI18n();
 const uiStore = useUiStore();
 const {$echo} = useNuxtApp()
 
 const token = useCookie('token').value
-const user = useCookie<IUser | undefined>('user').value
+const user = useCookie<UserType | undefined>('user').value
 
 if (!token) {
   navigateTo('/login');
@@ -23,9 +20,8 @@ const {data: response, pending, refresh} = useFetch(getBaseUrl(1, RouteEnum.Conv
   headers: {
     Accept: 'application/json',
     Authorization: 'Bearer ' + token,
-  }
+  },
 })
-
 onMounted(() => {
   if (user && user.id) {
     $echo.private(`users.${user.id}`)
@@ -45,8 +41,8 @@ onUnmounted(() => {
   }
 })
 
-const openConversation = (id: string, name: string) => {
-  uiStore.setActiveChat(id, name);
+const openConversation = (id: string, user: UserType) => {
+  uiStore.setActiveChat(id, user);
 }
 </script>
 
@@ -65,7 +61,7 @@ const openConversation = (id: string, name: string) => {
       <li
           v-for="conv in response?.data"
           :key="conv.id"
-          @click="openConversation(conv.id , conv.users?.filter((u: any) => u.id !== user?.id)[0]?.name)"
+          @click="openConversation(conv.id , conv.users?.filter((u: any) => u.id !== user?.id)[0])"
           :class="[
              'p-4 border rounded-xl cursor-pointer flex justify-between gap-3 transition-all duration-200 active:scale-[0.99]',
              uiStore.activeChatId === conv.id
@@ -78,7 +74,7 @@ const openConversation = (id: string, name: string) => {
             {{ conv.users?.filter((u: any) => u.id !== user?.id)[0]?.name || t("Private Chat") }}
           </p>
           <p class="text-sm text-neutral-500 dark:text-neutral-400 truncate mt-0.5 max-w-[220px] sm:max-w-full">
-            {{ conv.messages?.[0]?.body || t("No messages yet...") }}
+            {{ conv.message?.body || t("No messages yet...") }}
           </p>
         </div>
 

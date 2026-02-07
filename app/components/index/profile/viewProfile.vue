@@ -82,7 +82,9 @@ const handleSave = async () => {
       >
         <div
             class="w-full h-full rounded-full overflow-hidden border-4 border-primary-500/20 shadow-xl bg-neutral-100 dark:bg-neutral-800">
-          <img :src="form.avatar_url" alt="Profile" class="w-full h-full object-cover"/>
+          <NuxtPicture :imgAttrs="{
+            class:'w-full h-full object-cover'
+          }" format="webp,avif" :src="form.avatar_url" alt="Profile"/>
         </div>
 
         <div

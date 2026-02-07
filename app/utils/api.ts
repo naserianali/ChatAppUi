@@ -8,6 +8,7 @@ export enum RouteEnum {
     UpdateProfile = "updateProfile",
     UploadMedia = "uploadMedia",
     MarkAsRead = "markAsRead",
+    GetReplayPage = "getReplayPage"
 }
 
 function getBaseRoute() {
@@ -33,6 +34,7 @@ export const routes = {
     [RouteEnum.ConversationList]: "application/conversations",
     [RouteEnum.GetConversation]: "application/conversations/{conversationId}/messages",
     [RouteEnum.SendMessage]: "application/conversations/{conversationId}/messages",
+    [RouteEnum.GetReplayPage]: "application/conversations/{conversationId}/messages/{messageId}/replay-page",
     [RouteEnum.MarkAsRead]: "application/conversations/{conversationId}/messages/{messageId}/read",
     [RouteEnum.UpdateProfile]: "application/profile",
     [RouteEnum.UploadMedia]: "application/media",

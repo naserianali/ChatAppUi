@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {useUiStore} from "~/stores/ui";
+import type {UserType} from "~/types/user.type";
 
 const uiStore = useUiStore()
 const props = defineProps<{
-  name: string | null
+  user: UserType | {}
   activeChatId: string | null
 }>()
 const emit = defineEmits(['back'])
@@ -22,13 +23,14 @@ const {t} = useI18n()
           @click="uiStore.toggleInfoSidebar()"
       >
         <div
-            class="size-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold  shadow-sm">
-          <span class="h-fit">
-            {{ name ? name.substring(0, 1).toUpperCase() : '?' }}
+            class="size-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold shrink-0 overflow-hidden shadow-sm">
+          <img  v-if="user && user.profile && user.profile.avatar" class="h-full w-full" :src="user.profile.avatar.url" alt="">
+          <span v-else class="h-fit">
+            {{ user ? user.name.substring(0, 1).toUpperCase() : '?' }}
           </span>
         </div>
         <div class="min-w-0">
-          <h2 class="font-bold text-base md:text-lg dark:text-white truncate">{{ name }}</h2>
+          <h2 class="font-bold text-base md:text-lg dark:text-white truncate">{{ user.name }}</h2>
           <span class="text-[10px] text-green-500 font-medium">Online</span>
         </div>
       </div>

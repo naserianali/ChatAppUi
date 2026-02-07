@@ -13,7 +13,8 @@ export default defineNuxtConfig({
         '@vueuse/nuxt',
         '@nuxt/icon',
         '@pinia/nuxt',
-        'pinia-plugin-persistedstate/nuxt'
+        'pinia-plugin-persistedstate/nuxt',
+        '@nuxt/image'
     ],
     pinia: {
         storesDirs: ['./app/stores/**'],
