@@ -15,12 +15,107 @@ const messagesContainer = ref<HTMLElement | null>(null)
 const topTrigger = ref<HTMLElement | null>(null)
 const bottomTrigger = ref<HTMLElement | null>(null)
 const messages = ref<any[]>([])
+
 const isLoading = ref(false)
 const isFetchingMore = ref(false)
-const isInitialLoading = ref(true)
-const currentPage = ref(1)
-const lastPage = ref(1)
-const perPage = ref(18)
+
+const nextCursor = ref<string | null>(null)
+const prevCursor = ref<string | null>(null)
+const hasMoreOlder = ref(false)
+const hasMoreNewer = ref(false)
+
+const setupEcho = (id: string) => {
+  $echo.private(`conversations.${id}`)
+      .listen('.MessageSent', (e: any) => {
+        const newMsg = e.message || e.data?.message || e.conversation?.last_message || e
+        if (!newMsg || !newMsg.id) return
+
+        if (hasMoreNewer.value) {
+          if (newMsg.sender_id === user?.id) {
+            handleMessageSent()
+          }
+          return
+        }
+
+        const exists = messages.value.some(m => m.id === newMsg.id)
+        if (exists) return
+
+        messages.value.push(newMsg)
+
+        if (newMsg.sender_id === user?.id || !hasMoreNewer.value) {
+          scrollToBottom('smooth')
+        }
+      })
+}
+
+const handleMessageSent = async () => {
+  if (hasMoreNewer.value) {
+    messages.value = []
+    nextCursor.value = null
+    prevCursor.value = null
+    hasMoreOlder.value = false
+    hasMoreNewer.value = false
+    await fetchMessages(null)
+  } else {
+    scrollToBottom('smooth')
+  }
+}
+
+const fetchMessages = async (cursor: string | null = null, direction: 'up' | 'down' = 'up') => {
+  if (!activeChatId.value || isFetchingMore.value) return
+
+  const isInitial = !cursor && messages.value.length === 0
+  if (isInitial) isLoading.value = true
+  isFetchingMore.value = true
+
+  try {
+    const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetConversation, {conversationId: activeChatId.value}), {
+      params: {cursor, per_page: 10, direction},
+      headers: {Authorization: 'Bearer ' + token}
+    })
+
+    if (res?.data) {
+      const container = messagesContainer.value
+      const prevH = container?.scrollHeight || 0
+      const prevT = container?.scrollTop || 0
+
+      if (isInitial) {
+        messages.value = res.data.reverse()
+        nextCursor.value = res.meta?.next_cursor || res.pagination?.next_cursor
+        hasMoreOlder.value = !!nextCursor.value
+        hasMoreNewer.value = false
+        scrollToBottom('auto')
+      } else if (direction === 'up') {
+        const newMsgs = res.data
+        messages.value = [...newMsgs.reverse(), ...messages.value]
+        nextCursor.value = res.meta?.next_cursor || res.pagination?.next_cursor
+        hasMoreOlder.value = !!nextCursor.value
+        await nextTick()
+        if (container) container.scrollTop = container.scrollHeight - prevH + prevT
+      } else if (direction === 'down') {
+        const newMsgs = res.data
+        messages.value = [...messages.value, ...newMsgs]
+        prevCursor.value = res.meta?.next_cursor || res.pagination?.next_cursor
+        hasMoreNewer.value = !!prevCursor.value
+        if (!hasMoreNewer.value) scrollToBottom('smooth')
+      }
+    }
+  } finally {
+    isLoading.value = false
+    isFetchingMore.value = false
+  }
+}
+
+const scrollToBottom = (behavior: 'auto' | 'smooth' = 'auto') => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTo({
+        top: messagesContainer.value.scrollHeight,
+        behavior
+      })
+    }
+  })
+}
 
 const markAsRead = async (messageId: string) => {
   if (!activeChatId.value) return
@@ -32,10 +127,7 @@ const markAsRead = async (messageId: string) => {
       method: 'PATCH',
       headers: {Authorization: 'Bearer ' + token}
     })
-    const msg = messages.value.find(m => m.id === messageId)
-    if (msg) msg.read_at = new Date().toISOString()
   } catch (err) {
-    console.error(err)
   }
 }
 
@@ -46,207 +138,86 @@ const onMessageVisible = (messageId: string) => {
   }
 }
 
-const scrollToBottom = () => nextTick(() => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-  }
-})
-
-const handleScroll = () => {
-  if (messagesContainer.value && activeChatId.value && !isInitialLoading.value) {
-    uiStore.setScrollPosition(activeChatId.value, messagesContainer.value.scrollTop)
-  }
-}
-
-const handleIncomingMessage = (newMessage: any) => {
-  if (!newMessage || !newMessage.id) return;
-  const exists = messages.value.some(m => m && m.id === newMessage.id)
-  if (!exists) {
-    if (currentPage.value === 1) {
-      messages.value.push(newMessage)
-      if (newMessage.sender_id === user?.id || isNearBottom()) {
-        scrollToBottom()
+const highlightMessage = (id: string) => {
+  nextTick(() => {
+    setTimeout(() => {
+      const el = document.getElementById(`msg-${id}`)
+      if (el) {
+        el.scrollIntoView({behavior: 'smooth', block: 'center'})
+        el.classList.add('highlight-anim')
+        setTimeout(() => el.classList.remove('highlight-anim'), 3000)
       }
-    }
-  }
-}
-
-const isNearBottom = () => {
-  if (!messagesContainer.value) return false
-  const container = messagesContainer.value
-  return container.scrollHeight - container.scrollTop - container.clientHeight < 150
-}
-
-const fetchMessages = async (page = 1, direction: 'up' | 'down' = 'up') => {
-  // Prevent duplicate overlapping calls
-  if (!activeChatId.value || isLoading.value || isFetchingMore.value) return
-
-  const isInitial = messages.value.length === 0
-  isInitial ? (isLoading.value = true, isInitialLoading.value = true) : (isFetchingMore.value = true)
-
-  try {
-    const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetConversation, {conversationId: activeChatId.value}), {
-      params: {
-        page: page,
-        per_page: perPage.value
-      },
-      headers: {Authorization: 'Bearer ' + token}
-    })
-
-    if (res?.data) {
-      const container = messagesContainer.value
-      const prevH = container?.scrollHeight || 0
-      const prevT = container?.scrollTop || 0
-
-      if (isInitial) {
-        messages.value = res.data
-        await nextTick()
-        const saved = uiStore.chatScrollPositions?.[activeChatId.value]
-        setTimeout(() => {
-          if (container) container.scrollTop = (saved && saved > 0) ? saved : container.scrollHeight
-          isInitialLoading.value = false
-        }, 50)
-      } else if (direction === 'up') {
-        // Filter out any duplicates that might already exist in the array
-        const newMsgs = res.data.filter((nm: any) => !messages.value.some(m => m.id === nm.id))
-        messages.value = [...newMsgs, ...messages.value]
-        await nextTick()
-        if (container) container.scrollTop = container.scrollHeight - prevH + prevT
-      } else if (direction === 'down') {
-        const newMsgs = res.data.filter((nm: any) => !messages.value.some(m => m.id === nm.id))
-        messages.value = [...messages.value, ...newMsgs]
-      }
-
-      currentPage.value = res.pagination.current_page
-      lastPage.value = res.pagination.total_pages
-    }
-  } finally {
-    isLoading.value = false
-    isFetchingMore.value = false
-  }
+    }, 400)
+  })
 }
 
 const handleJumpToParent = async (parentId: string) => {
-  const element = document.getElementById(`msg-${parentId}`)
-  if (element) {
-    element.scrollIntoView({behavior: 'smooth', block: 'center'})
-    element.classList.add('ring-2', 'ring-primary-500')
-    setTimeout(() => element.classList.remove('ring-2', 'ring-primary-500'), 2000)
-  } else {
-    try {
-      // Show loader immediately
-      isLoading.value = true
+  const existingElement = document.getElementById(`msg-${parentId}`)
+  if (existingElement) {
+    highlightMessage(parentId)
+    return
+  }
+  try {
+    isLoading.value = true
+    const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetReplayPage, {
+      conversationId: activeChatId.value,
+      messageId: parentId
+    }), {headers: {Authorization: 'Bearer ' + token}})
 
-      const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetReplayPage, {
-        conversationId: activeChatId.value,
-        messageId: parentId
-      }), {
-        headers: {Authorization: 'Bearer ' + token}
-      })
-
-      if (res.data) {
-        // Reset state BEFORE fetching to ensure fetchMessages treats it as an initial load
-        messages.value = []
-        currentPage.value = 1
-        perPage.value = res.data.per_page
-
-        // Manual trigger
-        await fetchMessages(1)
-
-        await nextTick()
-        setTimeout(() => {
-          const newEl = document.getElementById(`msg-${parentId}`)
-          if (newEl) {
-            newEl.scrollIntoView({behavior: 'auto', block: 'center'})
-            newEl.classList.add('ring-2', 'ring-primary-500')
-            setTimeout(() => newEl.classList.remove('ring-2', 'ring-primary-500'), 2000)
-          }
-          perPage.value = 18
-        }, 200)
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      isLoading.value = false
+    if (res?.success && res.data?.data) {
+      messages.value = res.data.data
+      nextCursor.value = res.data.meta.next_cursor
+      prevCursor.value = res.data.meta.prev_cursor
+      hasMoreOlder.value = !!res.data.meta.next_cursor
+      hasMoreNewer.value = !!res.data.meta.prev_cursor
+      highlightMessage(parentId)
     }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    isLoading.value = false
   }
 }
 
 useIntersectionObserver(topTrigger, ([{isIntersecting}]) => {
-  if (isIntersecting && !isLoading.value && !isFetchingMore.value && currentPage.value < lastPage.value) {
-    fetchMessages(currentPage.value + 1, 'up')
+  if (isIntersecting && hasMoreOlder.value && !isFetchingMore.value && !isLoading.value) {
+    fetchMessages(nextCursor.value, 'up')
   }
 })
 
 useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
-  if (isIntersecting && !isLoading.value && !isFetchingMore.value && currentPage.value > 1) {
-    fetchMessages(currentPage.value - 1, 'down')
+  if (isIntersecting && hasMoreNewer.value && !isFetchingMore.value && !isLoading.value) {
+    fetchMessages(prevCursor.value, 'down')
   }
 })
 
-const activeChannel = ref<any>(null)
-
-const setupEcho = (id: string) => {
-  if (activeChannel.value) {
-    $echo.leave(`conversations.${activeChannel.value}`)
-  }
-
-  activeChannel.value = id
-  const channel = $echo.private(`conversations.${id}`)
-
-  channel.listen('MessageSent', (e: any) => {
-    handleIncomingMessage(e.message || e)
-  })
-
-  channel.listen('MessageReadEvent', (e: any) => {
-    const msg = messages.value.find(m => m.id === e.message_id)
-    if (msg) {
-      if (!msg.message_reads) msg.message_reads = []
-      if (!msg.message_reads.some((r: any) => r.user_id === e.user_id)) {
-        msg.message_reads.push({user_id: e.user_id, read_at: new Date().toISOString()})
-      }
-    }
-  })
-}
-
-watch(activeChatId, (newId) => {
+watch(activeChatId, (newId, oldId) => {
+  if (oldId) $echo.leave(`conversations.${oldId}`)
   messages.value = []
-  perPage.value = 18
-  currentPage.value = 1
+  nextCursor.value = null
+  prevCursor.value = null
+  hasMoreOlder.value = false
+  hasMoreNewer.value = false
   if (newId) {
-    fetchMessages(1)
-    setTimeout(() => setupEcho(newId), 500)
+    fetchMessages(null)
+    setupEcho(newId)
   }
 }, {immediate: true})
-
-onUnmounted(() => {
-  if (activeChatId.value) $echo.leave(`conversations.${activeChatId.value}`)
-})
 </script>
 
 <template>
-  <div class="flex flex-col h-full w-full bg-white dark:bg-gray-900 overflow-hidden">
-    <IndexChatHeader
-        :user="selectedUser"
-        :active-chat-id="activeChatId"
-        @back="uiStore.setActiveChat(null, null)"
-    />
+  <div class="flex flex-col h-full w-full bg-white dark:bg-gray-900 overflow-hidden relative">
+    <IndexChatHeader :user="selectedUser" :active-chat-id="activeChatId" @back="uiStore.setActiveChat(null, null)"/>
 
-    <main
-        ref="messagesContainer"
-        @scroll="handleScroll"
-        class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-black/40 custom-scrollbar"
-    >
-      <IndexChatEmptyState v-if="!activeChatId"/>
-
-      <div v-else-if="isLoading && !isFetchingMore" class="flex justify-center py-10">
+    <main ref="messagesContainer"
+          class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-black/40 custom-scrollbar">
+      <div v-if="isLoading && !isFetchingMore" class="flex items-center justify-center py-20">
         <Icon name="lucide:loader-2" class="animate-spin size-8 text-blue-500"/>
       </div>
 
       <template v-else>
-        <div ref="topTrigger" class="h-4 w-full flex items-center justify-center shrink-0">
-          <Icon v-if="isFetchingMore && currentPage < lastPage" name="lucide:loader-2"
-                class="animate-spin size-4 text-gray-400"/>
+        <div ref="topTrigger" class="h-4 w-full flex items-center justify-center">
+          <Icon v-if="isFetchingMore && hasMoreOlder" name="lucide:loader-2" class="animate-spin size-5 text-blue-400"/>
         </div>
 
         <IndexChatMessageItem
@@ -259,15 +230,14 @@ onUnmounted(() => {
             @jump-to-parent="handleJumpToParent"
         />
 
-        <div ref="bottomTrigger" class="h-4 w-full flex items-center justify-center shrink-0">
-          <Icon v-if="isFetchingMore && currentPage > 1" name="lucide:loader-2"
-                class="animate-spin size-4 text-gray-400"/>
+        <div ref="bottomTrigger" class="h-10 w-full flex items-center justify-center">
+          <Icon v-if="isFetchingMore && hasMoreNewer" name="lucide:loader-2" class="animate-spin size-5 text-blue-400"/>
         </div>
       </template>
     </main>
 
     <footer v-if="activeChatId" class="px-4 border-t dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 h-16">
-      <IndexChatSendMessage @message-sent="handleIncomingMessage"/>
+      <IndexChatSendMessage @message-sent="handleMessageSent"/>
     </footer>
   </div>
 </template>
@@ -282,7 +252,20 @@ onUnmounted(() => {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 }
-</style>
+
+:deep(.highlight-anim) {
+  animation: highlight 3s ease-in-out forwards;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+</style>f

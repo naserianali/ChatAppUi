@@ -1,44 +1,47 @@
 <script setup lang="ts">
-import { nextTick, ref, watch, onMounted, onUnmounted } from 'vue'
-import { useUiStore } from '~/stores/ui'
-import { storeToRefs } from 'pinia'
-import { getBaseUrl, RouteEnum } from "~/utils/api"
-import { useIntersectionObserver } from '@vueuse/core'
+import {useIntersectionObserver} from '@vueuse/core'
+import {storeToRefs} from 'pinia'
+import {useUiStore} from "~/stores/ui";
+import {RouteEnum} from "~/utils/api";
 
-interface Sender { id: string; name: string; first_name: string; last_name: string; }
-interface Message { id: string; sender_id: string; body: string; content?: string; created_at: string; read_at?: string | null; sender: Sender; [key: string]: any; }
-interface ApiResponse { success: boolean; data: Message[]; pagination: { current_page: number; total_pages: number; has_more_page: boolean; next_page_url: string | null; }; }
-
-const { $echo } = useNuxtApp()
+const {$echo} = useNuxtApp()
 const uiStore = useUiStore()
-const { activeChatId, name } = storeToRefs(uiStore)
-const { t } = useI18n()
+const {activeChatId, user: selectedUser} = storeToRefs(uiStore)
 
 const user = useCookie<any>('user').value
 const token = useCookie('token').value
 
 const messagesContainer = ref<HTMLElement | null>(null)
 const topTrigger = ref<HTMLElement | null>(null)
-const messages = ref<Message[]>([])
+const bottomTrigger = ref<HTMLElement | null>(null)
+const messages = ref<any[]>([])
+
 const isLoading = ref(false)
 const isFetchingMore = ref(false)
-const isInitialLoading = ref(true)
 
-const currentPage = ref(1)
-const lastPage = ref(1)
+const nextCursor = ref<string | null>(null)
+const prevCursor = ref<string | null>(null)
+const hasMoreOlder = ref(false)
+const hasMoreNewer = ref(false)
 
-const isNearBottom = () => {
-  const container = messagesContainer.value
-  if (!container) return false
-  return container.scrollHeight - container.scrollTop - container.clientHeight < 150
+const markAsRead = async (messageId: string) => {
+  if (!activeChatId.value) return
+  try {
+    await $fetch(getBaseUrl(1, RouteEnum.MarkAsRead, {
+      conversationId: activeChatId.value,
+      messageId: messageId
+    }), {
+      method: 'PATCH',
+      headers: {Authorization: 'Bearer ' + token}
+    })
+  } catch (err) {
+  }
 }
 
-const handleScroll = () => {
-  if (messagesContainer.value && activeChatId.value && !isInitialLoading.value && !isFetchingMore.value) {
-    const currentScroll = messagesContainer.value.scrollTop
-    if (currentScroll > 0) {
-      uiStore.setScrollPosition(activeChatId.value, currentScroll)
-    }
+const onMessageVisible = (messageId: string) => {
+  const msg = messages.value.find(m => m.id === messageId)
+  if (msg && msg.sender_id !== user?.id && !msg.read_at) {
+    markAsRead(messageId)
   }
 }
 
@@ -50,163 +53,164 @@ const scrollToBottom = () => {
   })
 }
 
-const fetchMessages = async (page = 1) => {
-  if (!activeChatId.value) return
+const fetchMessages = async (cursor: string | null = null, direction: 'older' | 'newer' = 'older') => {
+  if (!activeChatId.value || isFetchingMore.value) return
 
-  const isLoadMore = page > 1
-  if (isLoadMore) isFetchingMore.value = true
-  else {
-    isLoading.value = true
-    isInitialLoading.value = true
-  }
+  const isInitial = !cursor && messages.value.length === 0
+  if (isInitial) isLoading.value = true
+  isFetchingMore.value = true
 
   try {
-    const response = await $fetch<ApiResponse>(getBaseUrl(1, RouteEnum.GetConversation, {
-      conversationId: activeChatId.value,
-    }), {
-      params: { page },
-      headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+    const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetConversation, {conversationId: activeChatId.value}), {
+      params: {
+        cursor: cursor,
+        per_page: 20,
+        // If direction is newer, your backend logic needs to handle the cursor differently
+        direction: direction
+      },
+      headers: {Authorization: 'Bearer ' + token}
     })
 
-    if (response && response.data) {
+    if (res?.data) {
       const container = messagesContainer.value
-      const previousScrollHeight = container?.scrollHeight || 0
-      const previousScrollTop = container?.scrollTop || 0
+      const prevH = container?.scrollHeight || 0
+      const prevT = container?.scrollTop || 0
 
-      if (isLoadMore) {
-        messages.value = [...response.data, ...messages.value]
+      if (isInitial) {
+        messages.value = res.data
+        nextCursor.value = res.pagination.next_cursor
+        hasMoreOlder.value = res.pagination.has_more
+        hasMoreNewer.value = false
+        scrollToBottom()
+      } else if (direction === 'older') {
+        const newMsgs = res.data.filter((nm: any) => !messages.value.some(m => m.id === nm.id))
+        messages.value = [...newMsgs, ...messages.value]
+        nextCursor.value = res.pagination.next_cursor
+        hasMoreOlder.value = res.pagination.has_more
         await nextTick()
-        if (container) {
-          container.scrollTop = container.scrollHeight - previousScrollHeight + previousScrollTop
-        }
-      } else {
-        messages.value = response.data
-        await nextTick()
-
-        setTimeout(() => {
-          if (container) {
-            const savedPos = uiStore.chatScrollPositions?.[activeChatId.value]
-            if (savedPos && savedPos > 0) {
-              container.scrollTop = savedPos
-            } else {
-              container.scrollTop = container.scrollHeight
-            }
-            isInitialLoading.value = false
-          }
-        }, 50)
+        if (container) container.scrollTop = container.scrollHeight - prevH + prevT
+      } else if (direction === 'newer') {
+        const newMsgs = res.data.filter((nm: any) => !messages.value.some(m => m.id === nm.id))
+        messages.value = [...messages.value, ...newMsgs]
+        prevCursor.value = res.pagination.prev_cursor
+        hasMoreNewer.value = res.pagination.has_more
       }
-
-      currentPage.value = response.pagination.current_page
-      lastPage.value = response.pagination.total_pages
     }
-  } catch (error) {
-    console.error(error)
   } finally {
     isLoading.value = false
     isFetchingMore.value = false
   }
 }
 
-useIntersectionObserver(
-    topTrigger,
-    ([{ isIntersecting }]) => {
-      if (isIntersecting && activeChatId.value && !isLoading.value && !isFetchingMore.value && currentPage.value < lastPage.value) {
-        fetchMessages(currentPage.value + 1)
-      }
-    },
-    { threshold: 0.1 }
-)
+const handleJumpToParent = async (parentId: string) => {
+  const existingElement = document.getElementById(`msg-${parentId}`)
+  if (existingElement) {
+    existingElement.scrollIntoView({behavior: 'smooth', block: 'center'})
+    return
+  }
 
-watch(activeChatId, (newId, oldId) => {
-  if (oldId) leaveEchoChannel(oldId)
+  try {
+    isLoading.value = true
+    const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetReplayPage, {
+      conversationId: activeChatId.value,
+      messageId: parentId
+    }), {
+      headers: {Authorization: 'Bearer ' + token}
+    })
+
+    if (res?.success && res.data?.data) {
+      messages.value = res.data.data
+      // Set cursors from the slice service
+      nextCursor.value = res.data.meta.next_cursor
+      prevCursor.value = res.data.meta.prev_cursor
+      hasMoreOlder.value = !!res.data.meta.next_cursor
+      hasMoreNewer.value = !!res.data.meta.prev_cursor
+
+      await nextTick()
+      const target = document.getElementById(`msg-${parentId}`)
+      if (target) target.scrollIntoView({behavior: 'auto', block: 'center'})
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+useIntersectionObserver(topTrigger, ([{isIntersecting}]) => {
+  if (isIntersecting && hasMoreOlder.value && !isFetchingMore.value) {
+    fetchMessages(nextCursor.value, 'older')
+  }
+})
+
+useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
+  if (isIntersecting && hasMoreNewer.value && !isFetchingMore.value) {
+    fetchMessages(prevCursor.value, 'newer')
+  }
+})
+
+const setupEcho = (id: string) => {
+  const channel = $echo.private(`conversations.${id}`)
+  channel.listen('MessageSent', (e: any) => {
+    if (!hasMoreNewer.value) {
+      messages.value.push(e.message || e)
+      scrollToBottom()
+    }
+  })
+}
+
+watch(activeChatId, (newId) => {
   messages.value = []
-  currentPage.value = 1
-  lastPage.value = 1
+  hasMoreOlder.value = false
+  hasMoreNewer.value = false
   if (newId) {
-    setupEchoListeners(newId)
-    fetchMessages(1)
+    fetchMessages(null)
+    setTimeout(() => setupEcho(newId), 500)
   }
-})
-
-const setupEchoListeners = (id: string) => {
-  $echo.private(`conversations.${id}`)
-      .listen('MessageSent', (e: any) => {
-        const shouldScroll = isNearBottom()
-        const newMessage = e.message || e
-        messages.value.push(newMessage)
-        if (shouldScroll) scrollToBottom()
-      })
-}
-
-const leaveEchoChannel = (id: string) => {
-  $echo.leave(`conversations.${id}`)
-}
-
-onMounted(() => {
-  if (activeChatId.value) {
-    setupEchoListeners(activeChatId.value)
-    fetchMessages(1)
-  }
-})
-
-onUnmounted(() => {
-  if (activeChatId.value) leaveEchoChannel(activeChatId.value)
-})
+}, {immediate: true})
 </script>
 
 <template>
-  <div class="flex flex-col h-full w-full bg-white dark:bg-gray-900 overflow-hidden">
-    <header class="h-16 flex items-center justify-between px-4 border-b dark:border-gray-800 shrink-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-10">
-      <div v-if="activeChatId" class="flex items-center gap-3 min-w-0">
-        <button @click="uiStore.setActiveChat(null, null)" class="md:hidden p-2 -ms-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors shrink-0">
-          <Icon name="lucide:arrow-left" class="size-6 dark:text-white" />
-        </button>
-        <div class="size-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold shrink-0 shadow-sm">
-          {{ name ? name.substring(0, 1).toUpperCase() : '?' }}
-        </div>
-        <div class="min-w-0">
-          <h2 class="font-bold text-base md:text-lg dark:text-white truncate leading-tight">{{ name }}</h2>
-          <span class="text-[10px] text-green-500 font-medium">Online</span>
-        </div>
-      </div>
-      <div v-else class="text-gray-400 text-sm font-medium italic">{{ t("No conversation selected") }}</div>
-    </header>
+  <div class="flex flex-col h-full w-full bg-white dark:bg-gray-900 overflow-hidden relative">
+    <IndexChatHeader :user="selectedUser" :active-chat-id="activeChatId" @back="uiStore.setActiveChat(null, null)"/>
 
-    <main ref="messagesContainer" @scroll="handleScroll" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-black/40 custom-scrollbar">
-      <div v-if="!activeChatId" class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-        <div class="p-6 rounded-full bg-gray-100 dark:bg-gray-800">
-          <Icon name="lucide:messages-square" class="size-12 opacity-20" />
-        </div>
-        <p class="text-sm font-medium">Select a conversation to start chatting</p>
+    <main ref="messagesContainer"
+          class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-black/40 custom-scrollbar">
+      <div ref="topTrigger" class="h-4 w-full flex items-center justify-center">
+        <Icon v-if="isFetchingMore && hasMoreOlder" name="lucide:loader-2" class="animate-spin size-5 text-blue-400"/>
       </div>
 
-      <div v-else-if="isLoading && !isFetchingMore" class="flex justify-center py-10">
-        <Icon name="lucide:loader-2" class="animate-spin size-8 text-blue-500" />
-      </div>
+      <IndexChatMessageItem
+          v-for="msg in messages"
+          :id="`msg-${msg.id}`"
+          :key="msg.id"
+          :message="msg"
+          :is-own="msg.sender_id === user?.id"
+          @visible="onMessageVisible"
+          @jump-to-parent="handleJumpToParent"
+      />
 
-      <template v-else>
-        <div ref="topTrigger" class="h-4 w-full flex items-center justify-center shrink-0">
-          <Icon v-if="isFetchingMore" name="lucide:loader-2" class="animate-spin size-4 text-gray-400" />
-        </div>
-        <div v-for="msg in messages" :key="msg.id" :class="['max-w-[85%] md:max-w-[50%] p-3 rounded-2xl text-sm shadow-sm flex flex-col', msg.sender_id === user?.id ? 'ms-auto bg-blue-600 text-white rounded-tr-none' : 'me-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-700']">
-          <span class="leading-relaxed break-words">{{ msg.body || msg.content }}</span>
-          <div :class="['text-[10px] mt-1 flex items-center gap-1 opacity-80', msg.sender_id === user?.id ? 'justify-end text-blue-50' : 'justify-start text-gray-400']">
-            {{ msg.created_at ? new Date(msg.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) : '' }}
-            <Icon v-if="msg.sender_id === user?.id" :name="msg.read_at ? 'lucide:check-check' : 'lucide:check'" class="size-3" />
-          </div>
-        </div>
-      </template>
+      <div ref="bottomTrigger" class="h-10 w-full flex items-center justify-center">
+        <Icon v-if="isFetchingMore && hasMoreNewer" name="lucide:loader-2" class="animate-spin size-5 text-blue-400"/>
+      </div>
     </main>
 
-    <footer v-if="activeChatId" class="p-3 md:p-4 border-t dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0">
-      <IndexChatSendMessage />
+    <footer v-if="activeChatId" class="px-4 border-t dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 h-16">
+      <IndexChatSendMessage @message-sent="fetchMessages(null)"/>
     </footer>
   </div>
 </template>
 
 <style scoped>
-.custom-scrollbar { overflow-anchor: none; }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.2); border-radius: 10px; }
+.custom-scrollbar {
+  overflow-anchor: none;
+  scroll-behavior: smooth;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
 </style>

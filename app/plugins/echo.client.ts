@@ -3,6 +3,7 @@ import Echo from "laravel-echo";
 
 export default defineNuxtPlugin(() => {
     (window as any).Pusher = Pusher
+    const baseUrl = useRuntimeConfig().public.bradCastUrl
     const token = useCookie("token").value
     const echo = new Echo({
         broadcaster: 'reverb',
@@ -11,7 +12,7 @@ export default defineNuxtPlugin(() => {
         wsPort: 8080,
         forceTLS: false,
         enabledTransports: ['ws', 'wss'],
-        authEndpoint: 'http://localhost:4000/broadcasting/auth',
+        authEndpoint: `${baseUrl}/broadcasting/auth`,
         withCredentials: true,
         auth: {
             headers: {

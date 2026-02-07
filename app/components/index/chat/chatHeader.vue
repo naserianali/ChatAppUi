@@ -24,7 +24,15 @@ const {t} = useI18n()
       >
         <div
             class="size-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold shrink-0 overflow-hidden shadow-sm">
-          <img  v-if="user && user.profile && user.profile.avatar" class="h-full w-full" :src="user.profile.avatar.url" alt="">
+          <NuxtPicture
+              v-if="user?.profile?.avatar?.url"
+              :src="user.profile.avatar.url"
+              :alt="user.name || 'User avatar'"
+              width="100"
+              height="100"
+              format="avif,webp"
+              :img-attrs="{ class: 'h-full w-full object-cover' }"
+          />
           <span v-else class="h-fit">
             {{ user ? user.name.substring(0, 1).toUpperCase() : '?' }}
           </span>
