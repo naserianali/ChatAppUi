@@ -60,7 +60,7 @@ const handleClick = (event: MouseEvent) => {
           :name="iconName"
           class="size-4 md:size-5 transition-transform"
       />
-      <span class="truncate">{{ t(labelKey) }}</span>
+      <span v-if="labelKey" class="truncate">{{ t(labelKey) }}</span>
     </template>
   </button>
 </template>

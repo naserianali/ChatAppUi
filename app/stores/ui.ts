@@ -4,7 +4,8 @@ export const useUiStore = defineStore('ui', {
     state: () => ({
         sidebarView: 'conversations',
         activeChatId: null as string | null,
-        name: null as string | null
+        name: null as string | null,
+        chatScrollPositions: {} as Record<string, number>
     }),
     actions: {
         setView(view: 'conversations' | 'contacts') {
@@ -18,6 +19,9 @@ export const useUiStore = defineStore('ui', {
             }
             this.activeChatId = id;
             this.name = name;
+        },
+        setScrollPosition(chatId: string, position: number) {
+            this.chatScrollPositions[chatId] = position
         }
     },
 })

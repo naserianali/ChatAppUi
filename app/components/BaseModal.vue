@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { watch, onMounted, onUnmounted } from 'vue'
+
 interface Props {
   show: boolean
   title: string
@@ -7,14 +9,26 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['close'])
 
+// Handle ESC key
 const handleKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Escape' && props.show) {
     emit('close')
   }
 }
 
+// Prevent body scroll when modal is open
+watch(() => props.show, (newVal) => {
+  if (typeof document !== 'undefined') {
+    document.body.style.overflow = newVal ? 'hidden' : ''
+  }
+}, { immediate: true })
+
 onMounted(() => window.addEventListener('keydown', handleKeydown))
-onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+  // Clean up scroll lock when component is destroyed
+  if (typeof document !== 'undefined') document.body.style.overflow = ''
+})
 </script>
 
 <template>
@@ -22,13 +36,13 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
     <Transition name="fade">
       <div
           v-if="show"
-          class="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm transition-all"
+          class="fixed inset-0 z-[1000] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
           @click.self="emit('close')"
       >
         <Transition name="slide-up">
           <div
               v-if="show"
-              class="w-full max-w-md bg-white dark:bg-neutral-900 rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden transition-colors duration-300"
+              class="w-full max-w-md bg-white dark:bg-neutral-900 rounded-t-2xl sm:rounded-xl shadow-2xl overflow-hidden"
               role="dialog"
               aria-modal="true"
           >
@@ -56,7 +70,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
@@ -74,7 +88,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 @media (min-width: 640px) {
   .slide-up-enter-from, .slide-up-leave-to {
     opacity: 0;
-    transform: scale(0.95) translateY(20px);
+    transform: scale(0.95) translateY(10px);
   }
 }
 </style>

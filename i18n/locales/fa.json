@@ -29,5 +29,12 @@
   "Search...": "جستوجو...",
   "Failed to load contacts": "خطا در بارگذاری مخاطبین",
   "No contacts found": "مخاطبی یافت نشد",
-  "Add a contact to start chatting": "برای شروع چت یک مخاطب اضافه کنید"
+  "Add a contact to start chatting": "برای شروع چت یک مخاطب اضافه کنید",
+  "Click photo to change": "برای تغییر روی تصویر کلیک کنید",
+  "First Name": "نام",
+  "Last Name": "نام خانوادگی",
+  "Username": "نام کاربری",
+  "Bio": "بیو",
+  "Save Changes": "ذخیره تغییرات",
+  "Profile Settings": "تنظیمات پروفایل"
 }

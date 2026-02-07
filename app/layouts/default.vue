@@ -2,8 +2,7 @@
 </script>
 
 <template>
-  <div class="bg-body">
-
+  <div id="layout" class="bg-body rtl:font-vazir">
     <slot />
   </div>
 </template>

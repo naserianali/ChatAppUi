@@ -5,6 +5,9 @@ export enum RouteEnum {
     CreateContact = "createContact",
     GetConversation = "getConversation",
     SendMessage = "sendMessage",
+    UpdateProfile = "updateProfile",
+    UploadMedia = "uploadMedia",
+    MarkAsRead = "markAsRead",
 }
 
 function getBaseRoute() {
@@ -30,4 +33,7 @@ export const routes = {
     [RouteEnum.ConversationList]: "application/conversations",
     [RouteEnum.GetConversation]: "application/conversations/{conversationId}/messages",
     [RouteEnum.SendMessage]: "application/conversations/{conversationId}/messages",
+    [RouteEnum.MarkAsRead]: "application/conversations/{conversationId}/messages/{messageId}/read",
+    [RouteEnum.UpdateProfile]: "application/profile",
+    [RouteEnum.UploadMedia]: "application/media",
 }

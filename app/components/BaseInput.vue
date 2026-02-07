@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 interface Props {
   labelKey: string
   iconName: string
@@ -23,12 +24,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
+const isPasswordVisible = ref(false)
+
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   emit('update:modelValue', target.value)
 }
 
-const isPasswordVisible = ref(false);
 const inputType = computed(() => {
   if (props.mode === 'password') {
     return isPasswordVisible.value ? 'text' : 'password'
@@ -54,13 +56,13 @@ const sizeClasses = computed(() => ({
 
 <template>
   <div class="flex flex-col w-full gap-1.5 ltr:text-start rtl:text-right">
-    <span
+    <label
+        :for="labelKey"
         v-if="mode !== 'no-label'"
         class="text-neutral-700 dark:text-neutral-300 font-medium text-sm md:text-base transition-colors"
     >
-      {{mode === "no-label"}}
       {{ t(labelKey) }}
-    </span>
+    </label>
 
     <label
         :for="labelKey"

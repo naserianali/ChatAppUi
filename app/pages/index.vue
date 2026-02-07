@@ -17,7 +17,7 @@
         !uiStore.activeChatId ? 'hidden md:flex' : 'flex'
       ]"
     >
-      <IndexChatWindow/>
+      <IndexChatContainer/>
     </main>
   </div>
 </template>
