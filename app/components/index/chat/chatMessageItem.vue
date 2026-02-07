@@ -34,7 +34,8 @@ const formatTime = (date: string) => {
       ref="target"
       :class="[
       'max-w-[85%] md:max-w-[50%] p-3 rounded-2xl text-sm shadow-sm flex flex-col',
-      isOwn ? 'ms-auto bg-blue-600 text-white rounded-tr-none' : 'me-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-700'
+      isOwn ? 'ms-auto bg-primary-600 text-white ltr:rounded-tr-none rtl:rounded-tl-none' :
+       'me-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 ltr:rounded-tl-none rtl:rounded-tr-none border border-gray-100 dark:border-gray-700'
     ]"
   >
     <span>{{ message.body }}</span>
@@ -45,7 +46,7 @@ const formatTime = (date: string) => {
       <template v-if="isOwn">
         <Icon
             :name="isRead ? 'lucide:check-check' : 'lucide:check'"
-            :class="['size-3', isRead ? 'text-blue-200' : 'text-gray-300']"
+            :class="['size-3', isRead ? 'text-primary-200' : 'text-gray-300']"
         />
       </template>
     </div>

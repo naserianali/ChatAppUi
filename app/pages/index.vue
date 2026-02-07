@@ -1,6 +1,5 @@
 <template>
-  <div class="flex h-screen overflow-hidden bg-gray-100 dark:bg-black">
-    <LanguageSwitcher/>
+  <div class="flex h-screen overflow-hidden bg-gray-100 dark:bg-black" :dir="$i18n.locale === 'fa' ? 'rtl' : 'ltr'">
 
     <aside
         :class="[
@@ -12,13 +11,17 @@
     </aside>
 
     <main
+        class="flex-1 min-w-0 bg-white dark:bg-gray-900 relative transition-all duration-300"
         :class="[
-        'flex-1 w-full relative flex flex-col h-full bg-white dark:bg-gray-900',
-        !uiStore.activeChatId ? 'hidden md:flex' : 'flex'
-      ]"
+    uiStore.isInfoSidebarOpen
+      ? 'ltr:lg:mr-[380px] rtl:lg:ml-[380px]'
+      : 'mr-0 ml-0'
+  ]"
     >
       <IndexChatContainer/>
     </main>
+
+    <IndexChatInfoSidebar/>
   </div>
 </template>
 

@@ -5,13 +5,15 @@ interface Props {
   type?: "button" | "submit"
   loading?: boolean
   disabled?: boolean
-  variant: "primary" | "secondary" | "border"
+  variant: "primary" | "secondary" | "border",
+  size: "sm" | "md"
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'button',
   loading: false,
   disabled: false,
+  size: "md"
 })
 
 const emit = defineEmits(['click'])
@@ -26,9 +28,13 @@ const variantClasses = computed(() => {
     border: 'border border-neutral-300 text-neutral-900 bg-white hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800'
   }
 
+  const size = {
+    sm: 'md:h-7.5 h-8.5',
+    md: 'md:h-10 h-9'
+  }
+  console.log(size[props.size])
   const disabledStyles = 'bg-neutral-200 text-neutral-400 cursor-not-allowed border-none dark:bg-neutral-800 dark:text-neutral-600'
-
-  return isDisabled.value ? disabledStyles : base[props.variant]
+  return isDisabled.value ? disabledStyles + " " + size[props.size] : base[props.variant] + " " + size[props.size]
 })
 
 const handleClick = (event: MouseEvent) => {
@@ -47,7 +53,6 @@ const handleClick = (event: MouseEvent) => {
       variantClasses,
       'group relative flex items-center justify-center gap-2 rounded transition-all duration-200 active:scale-[0.98]',
       'px-4 py-2 text-sm font-medium w-full sm:w-auto',
-      'h-9 md:h-10'
     ]"
   >
     <template v-if="loading">

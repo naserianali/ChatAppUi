@@ -47,10 +47,10 @@ const eyeIcon = computed(() => {
 })
 
 const sizeClasses = computed(() => ({
-  'p-1 text-xs': props.size === 'sm',
-  'p-2 text-sm sm:p-2.5': props.size === 'md',
-  'p-3 text-base sm:p-4': props.size === 'lg',
-  'p-4 text-lg sm:p-5': props.size === 'xl'
+  'p-2 md:p-1 text-xs': props.size === 'sm',
+  'p-3 md:p-2 text-sm sm:p-2.5': props.size === 'md',
+  'p-4 md:p-3 text-base sm:p-4': props.size === 'lg',
+  'p-6 md:p-4 text-lg sm:p-5': props.size === 'xl'
 }))
 </script>
 

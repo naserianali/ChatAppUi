@@ -9,14 +9,12 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['close'])
 
-// Handle ESC key
 const handleKeydown = (e: KeyboardEvent) => {
   if (e.key === 'Escape' && props.show) {
     emit('close')
   }
 }
 
-// Prevent body scroll when modal is open
 watch(() => props.show, (newVal) => {
   if (typeof document !== 'undefined') {
     document.body.style.overflow = newVal ? 'hidden' : ''
@@ -26,7 +24,6 @@ watch(() => props.show, (newVal) => {
 onMounted(() => window.addEventListener('keydown', handleKeydown))
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
-  // Clean up scroll lock when component is destroyed
   if (typeof document !== 'undefined') document.body.style.overflow = ''
 })
 </script>

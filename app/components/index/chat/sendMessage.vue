@@ -36,30 +36,30 @@ const handleSendMessage = async () => {
 </script>
 
 <template>
-  <footer class="p-4 bg-white dark:bg-gray-900">
-    <form @submit.prevent="handleSendMessage" class="flex items-end gap-x-2">
-
+  <div class="p-1 h-16 bg-white dark:bg-gray-900">
+    <form @submit.prevent="handleSendMessage" class="flex items-center h-full gap-x-2">
       <div class="flex-1">
         <BaseInput
             v-model="message"
             label-key="Type a message..."
             icon-name="lucide:message-square"
             placeholder="Write something..."
-            size="md"
+            size="sm"
             mode="no-label"
             :disabled="!uiStore.activeChatId || isLoading"
         />
       </div>
-      <div class="mt-2">
+      <div>
         <CustomButton
             type="submit"
             label-key="Send"
             icon-name="lucide:send"
             variant="primary"
+            size="sm"
             :loading="isLoading"
             :disabled="!message.trim() || !uiStore.activeChatId"
         />
       </div>
     </form>
-  </footer>
+  </div>
 </template>

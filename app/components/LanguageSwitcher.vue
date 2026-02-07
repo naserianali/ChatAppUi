@@ -1,5 +1,5 @@
 <template>
-  <div ref="target" class="absolute inline-block z-50 end-0">
+  <div ref="target" class="absolute inline-block z-50 end-0 top-3">
     <button
         @click="isOpen = !isOpen"
         type="button"
