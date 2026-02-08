@@ -25,7 +25,6 @@ const handleSendMessage = async () => {
     const url = getBaseUrl(1, RouteEnum.SendMessage, {
       conversationId: uiStore.activeChatId
     })
-
     await $fetch(url, {
       method: 'POST',
       headers: {
@@ -60,7 +59,7 @@ const handleSendMessage = async () => {
         >
           <div class="flex flex-col border-s-4 border-primary-500 px-3 overflow-hidden">
             <span class="text-[10px] font-bold text-primary-600 uppercase">
-              Replying to {{ replyTo.sender?.name }}
+              Replying to {{ replyTo.sender?.id }}
             </span>
             <span class="text-xs text-gray-500 truncate line-clamp-1 italic">
               {{ replyTo.body }}

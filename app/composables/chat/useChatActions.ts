@@ -21,7 +21,7 @@ export const useChatActions = (
     const fetchMessages = async (cursor: string | null = null, direction: 'up' | 'down' = 'up') => {
         if (!state.activeChatId.value || state.isFetchingMore.value) return
 
-        const isInitial = !cursor && state.messages.value.length === 0
+        const isInitial = !cursor
         if (isInitial) state.isLoading.value = true
         state.isFetchingMore.value = true
 

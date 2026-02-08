@@ -62,9 +62,14 @@ useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
     <main ref="messagesContainer"
           class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-black/40 custom-scrollbar">
 
-      <div v-if="isLoading && !isFetchingMore" class="flex items-center justify-center py-20">
-        <Icon name="lucide:loader-2" class="animate-spin size-8 text-blue-500"/>
-      </div>
+      <template v-if="isLoading && messages.length === 0">
+        <IndexChatMessageItem
+            v-for="i in 8"
+            :key="'skeleton-' + i"
+            :is-own="i % 3 === 0"
+            loading
+        />
+      </template>
 
       <template v-else>
         <div ref="topTrigger" class="h-4 w-full flex items-center justify-center">
@@ -80,7 +85,6 @@ useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
             @visible="onMessageVisible"
             @jump-to-parent="handleJumpToParent"
         />
-
         <div ref="bottomTrigger" class="h-10 w-full flex items-center justify-center">
           <Icon v-if="isFetchingMore && hasMoreNewer" name="lucide:loader-2" class="animate-spin size-5 text-blue-400"/>
         </div>

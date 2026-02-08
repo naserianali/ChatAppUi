@@ -20,6 +20,7 @@ export const useChat = (
     let readTimeout: any = null
     const pendingReadId = ref<string | null>(null)
     const {scrollToBottom, highlightMessage} = useChatScroll(messagesContainer)
+
     const {fetchMessages, markAsRead, handleJumpToParent} = useChatActions(
         {
             messages, activeChatId, token, nextCursor, prevCursor,
@@ -28,6 +29,7 @@ export const useChat = (
         {scrollToBottom, highlightMessage},
         messagesContainer
     )
+
     const handleMessageSent = async () => {
         if (hasMoreNewer.value) {
             messages.value = []
@@ -59,8 +61,10 @@ export const useChat = (
         {messages, hasMoreNewer, activeChatId, user},
         {handleMessageSent, scrollToBottom}
     )
-    watch(activeChatId, (newId, oldId) => {
+
+    watch(activeChatId, async (newId, oldId) => {
         if (oldId) cleanupEcho(oldId)
+
         messages.value = []
         nextCursor.value = null
         prevCursor.value = null
@@ -68,7 +72,14 @@ export const useChat = (
         hasMoreNewer.value = false
 
         if (newId) {
-            fetchMessages(null)
+            isLoading.value = true
+            try {
+                await fetchMessages(null)
+            } catch (error) {
+                console.error("Error loading chat:", error)
+            } finally {
+                isLoading.value = false
+            }
             setupEcho(newId)
         }
     }, {immediate: true})

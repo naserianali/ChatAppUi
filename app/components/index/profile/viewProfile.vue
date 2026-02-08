@@ -103,29 +103,25 @@ const handleSave = async () => {
 <template>
   <div class="flex flex-col gap-8 p-2 relative">
     <div class="absolute end-0 top-0 z-50 flex items-center gap-2">
-      <button
-          @click="toggleTheme()"
+      <custom-button
+          labelKey=""
+          :iconName="isDark ? 'lucide:moon' : 'lucide:sun'"
           type="button"
-          class="p-2.5 rounded-lg transition-all hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
-      >
-        <Icon
-            :name="isDark ? 'lucide:moon' : 'lucide:sun'"
-            class="w-5 h-5"
-        />
-      </button>
+          :disabled="false"
+          variant="ghost"
+          size="icon"
+          @click="toggleTheme()"
+      />
 
       <div ref="target" class="relative">
-        <button
+        <CustomButton
             @click="isOpen = !isOpen"
-            type="button"
-            class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all
-                 hover:bg-neutral-100 dark:hover:bg-neutral-800
-                 active:scale-95 bg-transparent text-neutral-900 dark:text-neutral-100"
-        >
-          <Icon name="material-symbols:language" class="w-5 h-5 text-neutral-500 dark:text-neutral-400"/>
-          <span class="text-sm font-bold uppercase tracking-wide">{{ locale }}</span>
-        </button>
-
+            :label-key="locale"
+            icon-name="material-symbols:language"
+            variant="ghost"
+            size="icon"
+            class="uppercase tracking-wide"
+        />
         <Transition
             enter-active-class="transition duration-200 ease-out"
             enter-from-class="opacity-0 translate-y-1 scale-95"
@@ -137,10 +133,10 @@ const handleSave = async () => {
           <div
               v-if="isOpen"
               class="absolute end-0 top-full mt-2 z-[100] min-w-[150px]
-                   bg-white dark:bg-neutral-900
-                   border border-neutral-200 dark:border-neutral-800
-                   rounded-xl shadow-2xl shadow-black/10
-                   backdrop-blur-md overflow-hidden"
+             bg-white dark:bg-neutral-900
+             border border-neutral-200 dark:border-neutral-800
+             rounded-xl shadow-2xl shadow-black/10
+             backdrop-blur-md overflow-hidden"
           >
             <div class="flex flex-col p-1">
               <button
@@ -148,12 +144,12 @@ const handleSave = async () => {
                   :key="loc.code"
                   @click="changeLang(loc.code as 'fa' | 'en')"
                   class="group w-full text-start px-3 py-2.5 text-sm rounded-lg flex items-center justify-between gap-4
-                       transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   :class="[
-                    locale === loc.code
-                    ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400'
-                    : 'text-neutral-700 dark:text-neutral-300'
-                  ]"
+              locale === loc.code
+              ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400'
+              : 'text-neutral-700 dark:text-neutral-300'
+            ]"
               >
                 <span class="font-medium">{{ loc.name }}</span>
                 <Icon v-if="locale === loc.code" name="material-symbols:check-circle-rounded" class="w-4 h-4 shrink-0"/>
@@ -196,7 +192,7 @@ const handleSave = async () => {
 
     <div class="pt-4">
       <CustomButton
-          :labelKey="t('Save Changes')"
+          labelKey="Save Changes"
           iconName="lucide:save"
           variant="primary"
           :disabled="!hasChanges"
