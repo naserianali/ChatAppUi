@@ -14,7 +14,7 @@ export default defineNuxtConfig({
         '@nuxt/icon',
         '@pinia/nuxt',
         'pinia-plugin-persistedstate/nuxt',
-        '@nuxt/image'
+        '@nuxt/image',
     ],
     pinia: {
         storesDirs: ['./app/stores/**'],
@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     runtimeConfig: {
         public: {
             apiBase: "http://localhost:4000/api",
-            bradCastUrl: "http://localhost:4000",
+            broadCastUrl: "http://localhost:4000",
             maxFileSize: 5 * 1024 * 1024,
         }
     },
@@ -38,7 +38,26 @@ export default defineNuxtConfig({
                 {charset: 'utf-8'},
                 {name: "viewport", content: "width=device-width, initial-scale=1"},
                 {name: "description", content: "Real Time Chat App"}
-            ]
+            ],
+            script: [
+                {
+                    children: `
+            (function() {
+              try {
+                const theme = localStorage.getItem('nuxt-color-mode') || 'auto';
+                const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                
+                if (isDark) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (e) {}
+            })()
+          `,
+                    type: 'text/javascript',
+                },
+            ],
         }
     },
     vite: {
@@ -67,14 +86,14 @@ export default defineNuxtConfig({
                 iso: 'en-US',
                 name: "English",
                 file: "en.json",
-                dir: "ltr"
+                dir: "ltr",
             },
             {
                 code: 'fa',
                 iso: 'fa-IR',
                 name: 'فارسی',
                 file: "fa.json",
-                dir: "rtl"
+                dir: "rtl",
             }
         ],
 

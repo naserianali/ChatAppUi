@@ -6,7 +6,7 @@ interface Props {
   loading?: boolean
   disabled?: boolean
   variant: "primary" | "secondary" | "border",
-  size: "sm" | "md"
+  size: "sm" | "md" | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -15,24 +15,19 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   size: "md"
 })
-
 const emit = defineEmits(['click'])
 const {t} = useI18n()
-
 const isDisabled = computed(() => props.disabled || props.loading)
-
 const variantClasses = computed(() => {
   const base = {
     primary: 'bg-primary-500 text-white hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 shadow-sm',
     secondary: 'bg-secondary-500 text-white hover:bg-secondary-600 dark:bg-secondary-600 dark:hover:bg-secondary-700 shadow-sm',
     border: 'border border-neutral-300 text-neutral-900 bg-white hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800'
   }
-
   const size = {
     sm: 'md:h-7.5 h-8.5',
     md: 'md:h-10 h-9'
   }
-  console.log(size[props.size])
   const disabledStyles = 'bg-neutral-200 text-neutral-400 cursor-not-allowed border-none dark:bg-neutral-800 dark:text-neutral-600'
   return isDisabled.value ? disabledStyles + " " + size[props.size] : base[props.variant] + " " + size[props.size]
 })

@@ -4,7 +4,7 @@ import {usePresenceStore} from "~/stores/presence";
 
 export default defineNuxtPlugin(() => {
     (window as any).Pusher = Pusher
-    const baseUrl = useRuntimeConfig().public.bradCastUrl
+    const baseUrl = useRuntimeConfig().public.broadCastUrl
     const token = useCookie("token").value
     const echo = new Echo({
         broadcaster: 'reverb',
