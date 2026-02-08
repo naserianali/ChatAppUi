@@ -1,5 +1,5 @@
-import { useChatScroll } from '~/composables/chat/useChatScroll'
-import { useChatRealtime } from '~/composables/chat/useChatRealtime'
+import {useChatScroll} from '~/composables/chat/useChatScroll'
+import {useChatRealtime} from '~/composables/chat/useChatRealtime'
 import {useChatActions} from "~/composables/chat/useChatActions";
 
 export const useChat = (
@@ -19,13 +19,13 @@ export const useChat = (
 
     let readTimeout: any = null
     const pendingReadId = ref<string | null>(null)
-    const { scrollToBottom, highlightMessage } = useChatScroll(messagesContainer)
-    const { fetchMessages, markAsRead, handleJumpToParent } = useChatActions(
+    const {scrollToBottom, highlightMessage} = useChatScroll(messagesContainer)
+    const {fetchMessages, markAsRead, handleJumpToParent} = useChatActions(
         {
             messages, activeChatId, token, nextCursor, prevCursor,
             hasMoreOlder, hasMoreNewer, isLoading, isFetchingMore
         },
-        { scrollToBottom, highlightMessage },
+        {scrollToBottom, highlightMessage},
         messagesContainer
     )
     const handleMessageSent = async () => {
@@ -55,9 +55,9 @@ export const useChat = (
         }
     }
 
-    const { setupEcho, cleanupEcho } = useChatRealtime(
-        { messages, hasMoreNewer, activeChatId, user },
-        { handleMessageSent, scrollToBottom }
+    const {setupEcho, cleanupEcho} = useChatRealtime(
+        {messages, hasMoreNewer, activeChatId, user},
+        {handleMessageSent, scrollToBottom}
     )
     watch(activeChatId, (newId, oldId) => {
         if (oldId) cleanupEcho(oldId)
@@ -71,7 +71,7 @@ export const useChat = (
             fetchMessages(null)
             setupEcho(newId)
         }
-    }, { immediate: true })
+    }, {immediate: true})
 
     return {
         messages,

@@ -1,6 +1,5 @@
-<script setup lang="ts">
+<script setup>
 </script>
-
 <template>
   <div id="layout" class="bg-body rtl:font-vazir">
     <slot />

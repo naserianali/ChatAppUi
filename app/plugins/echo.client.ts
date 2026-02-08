@@ -1,5 +1,6 @@
 import Pusher from "pusher-js";
 import Echo from "laravel-echo";
+import {usePresenceStore} from "~/stores/presence";
 
 export default defineNuxtPlugin(() => {
     (window as any).Pusher = Pusher

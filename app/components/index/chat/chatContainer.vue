@@ -2,12 +2,17 @@
 import {useIntersectionObserver} from '@vueuse/core'
 import {storeToRefs} from 'pinia'
 import {useUiStore} from "~/stores/ui"
+import {usePresenceStore} from "~/stores/presence"
+import {useChat} from "~/composables/useChat";
 
 const uiStore = useUiStore()
+const presenceStore = usePresenceStore()
+
 const {activeChatId, user: selectedUser} = storeToRefs(uiStore)
 const messagesContainer = ref<HTMLElement | null>(null)
 const topTrigger = ref<HTMLElement | null>(null)
 const bottomTrigger = ref<HTMLElement | null>(null)
+
 const {
   messages,
   isLoading,
@@ -22,6 +27,17 @@ const {
   onMessageVisible,
   handleJumpToParent
 } = useChat(activeChatId, messagesContainer)
+
+const realTimeUser = computed(() => {
+  if (!selectedUser.value) return {}
+
+  return {
+    ...selectedUser.value,
+    is_online: presenceStore.isOnline(selectedUser.value.id),
+    last_seen_at: presenceStore.localLastSeenUpdates[selectedUser.value.id] || selectedUser.value.last_seen_at
+  }
+})
+
 useIntersectionObserver(topTrigger, ([{isIntersecting}]) => {
   if (isIntersecting && hasMoreOlder.value && !isFetchingMore.value && !isLoading.value) {
     fetchMessages(nextCursor.value, 'up')
@@ -37,7 +53,11 @@ useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
 
 <template>
   <div class="flex flex-col h-full w-full bg-white dark:bg-gray-900 overflow-hidden relative">
-    <IndexChatHeader :user="selectedUser" :active-chat-id="activeChatId" @back="uiStore.setActiveChat(null, null)"/>
+    <IndexChatHeader
+        :user="realTimeUser"
+        :active-chat-id="activeChatId"
+        @back="uiStore.setActiveChat(null, null)"
+    />
 
     <main ref="messagesContainer"
           class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-black/40 custom-scrollbar">
