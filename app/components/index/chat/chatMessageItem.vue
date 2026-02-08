@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import {useIntersectionObserver} from '@vueuse/core'
+import {useChatStore} from "~/stores/chatStore";
+import type MessageType from "~/types/message.type";
+import {useUiStore} from "~/stores/ui";
 
+const {setReplayMessage} = useChatStore()
+const {activeChatId} = useUiStore();
 const props = defineProps<{
-  message: any
+  message: MessageType
   isOwn: boolean
 }>()
 
@@ -22,10 +27,14 @@ useIntersectionObserver(
     },
     {threshold: 0.2}
 )
+const handleReplay = (message) => {
+  setReplayMessage(activeChatId, message)
+}
 </script>
 
 <template>
   <div
+      @dblclick="handleReplay(message)"
       ref="target"
       :class="[
       'max-w-[85%] md:max-w-[50%] text-start p-3 rounded-2xl text-sm shadow-sm flex flex-col gap-2 transition-colors duration-300',

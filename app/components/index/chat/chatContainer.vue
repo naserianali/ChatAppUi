@@ -86,7 +86,7 @@ useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
         </div>
       </template>
     </main>
-
+    <div id="reply-teleport-target"></div>
     <footer v-if="activeChatId" class="px-4 border-t dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 h-16">
       <IndexChatSendMessage @message-sent="handleMessageSent"/>
     </footer>

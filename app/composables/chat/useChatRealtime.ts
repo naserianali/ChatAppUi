@@ -7,17 +7,22 @@ export const useChatRealtime = (
     },
     actions: {
         handleMessageSent: () => void,
-        scrollToBottom: (b: 'auto'|'smooth') => void
+        scrollToBottom: (b: 'auto' | 'smooth') => void
     }
 ) => {
-    const { $echo } = useNuxtApp()
+    const {$echo} = useNuxtApp()
 
     const setupEcho = (id: string) => {
         $echo.private(`conversations.${id}`)
             .listen('.MessageSent', (e: any) => {
                 const newMsg = e.message || e.data?.message || e.conversation?.last_message || e
                 if (!newMsg || !newMsg.id) return
-
+                if (newMsg.parent_id && !newMsg.parent) {
+                    const localParent = state.messages.value.find(m => m.id === newMsg.parent_id)
+                    if (localParent) {
+                        newMsg.parent = localParent
+                    }
+                }
                 if (state.hasMoreNewer.value) {
                     if (newMsg.sender_id === state.user?.id) {
                         actions.handleMessageSent()
@@ -55,5 +60,5 @@ export const useChatRealtime = (
         if (id) $echo.leave(`conversations.${id}`)
     }
 
-    return { setupEcho, cleanupEcho }
+    return {setupEcho, cleanupEcho}
 }
