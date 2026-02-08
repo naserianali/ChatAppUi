@@ -31,7 +31,7 @@ useIntersectionObserver(
 )
 
 const handleReplay = (message: any) => {
-  if (props.loading || !message) return
+  if (props.loading || !message || !activeChatId) return
   setReplayMessage(activeChatId, message)
 }
 </script>
@@ -41,7 +41,7 @@ const handleReplay = (message: any) => {
       @dblclick="handleReplay(message)"
       ref="target"
       :class="[
-      'max-w-[85%] md:max-w-[50%] text-start p-3 rounded-2xl text-sm shadow-sm flex flex-col gap-2 transition-colors duration-300',
+      'max-w-[85%] md:max-w-[50%] text-start p-3 rounded-md text-sm shadow-sm flex flex-col gap-2 transition-colors duration-300',
       loading ? 'animate-pulse' : '',
       isOwn ? 'ms-auto bg-primary-600 text-white ltr:rounded-tr-none rtl:rounded-tl-none' :
        'me-auto bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 ltr:rounded-tl-none rtl:rounded-tr-none border border-gray-100 dark:border-gray-700',
@@ -66,7 +66,7 @@ const handleReplay = (message: any) => {
           v-if="message.parent"
           @click="emit('jump-to-parent', message.parent.id)"
           :class="[
-          'p-2 mb-1 rounded-lg text-xs border-s-4 flex flex-col gap-1 cursor-pointer hover:opacity-80 transition-opacity',
+          'p-2 mb-1 text-xs border-s-4 flex flex-col gap-1 cursor-pointer hover:opacity-80 transition-opacity',
           isOwn ? 'bg-primary-700/50 border-primary-300 text-primary-50' : 'bg-gray-100 dark:bg-gray-900 border-gray-400 text-gray-500'
         ]"
       >
