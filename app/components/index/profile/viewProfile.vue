@@ -1,8 +1,39 @@
 <script setup lang="ts">
-import {useDark, useToggle} from '@vueuse/core'
+import {useDark, useToggle, onClickOutside} from '@vueuse/core'
 import {getBaseUrl, RouteEnum} from "~/utils/api"
 import {useFileUploader} from "~/composables/useFileUploader"
 import {handleError} from "vue"
+
+const {$subscribePush} = useNuxtApp();
+const isSubscribed = ref(false);
+const notificationPermission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'default');
+
+const toggleNotifications = async () => {
+  if (isSubscribed.value) {
+    isSubscribed.value = false;
+    const registration = await navigator.serviceWorker?.getRegistration();
+    const subscription = await registration?.pushManager.getSubscription();
+    if (subscription) {
+      await subscription.unsubscribe();
+    }
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+  notificationPermission.value = permission;
+
+  if (permission === 'granted') {
+    await $subscribePush();
+    isSubscribed.value = true;
+  }
+};
+
+onMounted(() => {
+  if (notificationPermission.value === 'granted') {
+    isSubscribed.value = true;
+    $subscribePush();
+  }
+});
 
 const isDark = useDark({
   selector: 'html',
@@ -11,7 +42,6 @@ const isDark = useDark({
   valueLight: 'light',
   storageKey: 'vueuse-color-scheme',
 })
-console.log(isDark)
 const toggleTheme = useToggle(isDark)
 
 const {locale, locales, setLocale, t} = useI18n()
@@ -42,6 +72,15 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const user = useCookie("user").value as any;
 const token = useCookie("token").value
 
+interface ProfileForm {
+  avatar_url: string | null;
+  avatar: File | null;
+  username: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  bio: string | null;
+}
+
 const initialData = {
   avatar_url: (user && user.profile && user.profile.avatar) ? user.profile?.avatar?.url : null,
   avatar: null,
@@ -51,7 +90,7 @@ const initialData = {
   bio: user ? user.profile.bio : null
 }
 
-const form = ref({...initialData})
+const form = ref<ProfileForm>({...initialData})
 const hasChanges = computed(() => JSON.stringify(form.value) !== JSON.stringify(initialData))
 
 const triggerFileInput = () => fileInput.value?.click()
@@ -60,6 +99,8 @@ const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const [file] = target.files
+    if (!file)
+      return
     form.value.avatar_url = URL.createObjectURL(file)
     form.value.avatar = file
   }
@@ -103,11 +144,24 @@ const handleSave = async () => {
 <template>
   <div class="flex flex-col gap-8 p-2 relative">
     <div class="absolute end-0 top-0 z-50 flex items-center gap-2">
-      <custom-button
+      <CustomButton
+          labelKey=""
+          :iconName="isSubscribed ? 'lucide:bell' : 'lucide:bell-off'"
+          type="button"
+          variant="ghost"
+          size="icon"
+          @click="toggleNotifications"
+          :class="[
+            isSubscribed
+              ? 'text-primary-600 dark:text-primary-400'
+              : 'text-neutral-400 hover:text-neutral-600'
+          ]"
+      />
+
+      <CustomButton
           labelKey=""
           :iconName="isDark ? 'lucide:moon' : 'lucide:sun'"
           type="button"
-          :disabled="false"
           variant="ghost"
           size="icon"
           @click="toggleTheme()"
@@ -132,24 +186,19 @@ const handleSave = async () => {
         >
           <div
               v-if="isOpen"
-              class="absolute end-0 top-full mt-2 z-[100] min-w-[150px]
-             bg-white dark:bg-neutral-900
-             border border-neutral-200 dark:border-neutral-800
-             rounded-xl shadow-2xl shadow-black/10
-             backdrop-blur-md overflow-hidden"
+              class="absolute end-0 top-full mt-2 z-[100] min-w-[150px] bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl shadow-black/10 backdrop-blur-md overflow-hidden"
           >
             <div class="flex flex-col p-1">
               <button
                   v-for="loc in availableLocales"
                   :key="loc.code"
                   @click="changeLang(loc.code as 'fa' | 'en')"
-                  class="group w-full text-start px-3 py-2.5 text-sm rounded-lg flex items-center justify-between gap-4
-                 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  class="group w-full text-start px-3 py-2.5 text-sm rounded-lg flex items-center justify-between gap-4 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
                   :class="[
-              locale === loc.code
-              ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400'
-              : 'text-neutral-700 dark:text-neutral-300'
-            ]"
+                    locale === loc.code
+                    ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400'
+                    : 'text-neutral-700 dark:text-neutral-300'
+                  ]"
               >
                 <span class="font-medium">{{ loc.name }}</span>
                 <Icon v-if="locale === loc.code" name="material-symbols:check-circle-rounded" class="w-4 h-4 shrink-0"/>

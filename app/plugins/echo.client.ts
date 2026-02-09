@@ -9,7 +9,7 @@ export default defineNuxtPlugin(() => {
     const echo = new Echo({
         broadcaster: 'reverb',
         key: "ytouo6o5pcdpv4gjqwfl",
-        wsHost: "localhost",
+        wsHost: "192.168.1.144",
         wsPort: 8080,
         forceTLS: false,
         enabledTransports: ['ws', 'wss'],

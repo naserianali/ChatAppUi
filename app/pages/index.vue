@@ -29,4 +29,7 @@
 import {useUiStore} from "~/stores/ui";
 
 const uiStore = useUiStore()
+definePageMeta({
+  layout: "default"
+})
 </script>

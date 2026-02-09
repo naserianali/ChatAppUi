@@ -1,5 +1,6 @@
 <template>
   <NuxtLayout>
+    <NuxtPwaManifest/>
     <LanguageSwitcher/>
     <NuxtLoadingIndicator/>
     <NuxtRouteAnnouncer/>
@@ -8,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import {usePresenceStore} from "~/stores/presence.ts";
 import {useDark, useEventListener} from "@vueuse/core";
+import {usePresenceStore} from "~/stores/presence";
 
 const {$echo} = useNuxtApp()
 const presenceStore = usePresenceStore()

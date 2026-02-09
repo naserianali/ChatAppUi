@@ -52,7 +52,7 @@ useIntersectionObserver(bottomTrigger, ([{isIntersecting}]) => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full w-full bg-white dark:bg-gray-900 overflow-hidden relative">
+  <div class="flex flex-col h-dvh w-full bg-white dark:bg-gray-900 overflow-hidden relative">
     <IndexChatHeader
         :user="realTimeUser"
         :active-chat-id="activeChatId"

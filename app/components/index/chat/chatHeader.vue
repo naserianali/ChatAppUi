@@ -35,7 +35,6 @@ const displayLastSeen = computed(() => {
   return presenceStore.localLastSeenUpdates[props.user.id] || props.user.last_seen_at
 })
 
-// useTimeAgo will handle the formatting reactively
 const timeAgo = useTimeAgo(displayLastSeen)
 </script>
 

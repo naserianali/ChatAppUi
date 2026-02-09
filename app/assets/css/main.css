@@ -20,6 +20,36 @@
 
     --font-vazir: "Vazirmatn FD", ui-sans-serif, system-ui;
 }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    transition: background-color 9999s ease-in-out 0s;
+    caret-color: inherit;
+}
+
+html:not(.dark) input:-webkit-autofill,
+html:not(.dark) textarea:-webkit-autofill,
+html:not(.dark) select:-webkit-autofill {
+    -webkit-text-fill-color: #111827 !important;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+    box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
+
+html.dark input:-webkit-autofill,
+html.dark textarea:-webkit-autofill,
+html.dark select:-webkit-autofill {
+    -webkit-text-fill-color: #e5e7eb !important;
+    -webkit-box-shadow: 0 0 0 1000px #111827 inset !important;
+    box-shadow: 0 0 0 1000px #111827 inset !important;
+    caret-color: #e5e7eb;
+}
+
 
 @utility container {
     margin-inline: auto;

@@ -15,7 +15,33 @@ export default defineNuxtConfig({
         '@pinia/nuxt',
         'pinia-plugin-persistedstate/nuxt',
         '@nuxt/image',
+        "@vite-pwa/nuxt"
     ],
+    pwa: {
+        strategies: 'injectManifest',
+        srcDir: 'service-worker',
+        filename: 'sw.ts',
+        registerType: 'autoUpdate',
+        manifest: {
+            name: 'My Chat App',
+            short_name: 'ChatApp',
+            theme_color: '#ffffff',
+            icons: [
+                {src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png'},
+                {src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png'}
+            ]
+        },
+        injectManifest: {
+            globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+        },
+        devOptions: {
+            enabled: true,
+            type: "module"
+        },
+        client: {
+            installPrompt: true,
+        }
+    },
     pinia: {
         storesDirs: ['./app/stores/**'],
     },
@@ -26,9 +52,10 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            apiBase: "http://localhost:4000/api",
-            broadCastUrl: "http://localhost:4000",
+            apiBase: "http://192.168.1.144:4000/api",
+            broadCastUrl: "http://192.168.1.144:4000",
             maxFileSize: 5 * 1024 * 1024,
+            VAPID_PUBLIC: "BCn-FvfzQeiiaUunVS_vk-ZG2m-Oaf-WramJMJCr8B0c4gCup1KbX-HCswsR9yYJ5YN6r-1d82abvzdUU6LE1N0"
         }
     },
     app: {
@@ -36,27 +63,8 @@ export default defineNuxtConfig({
             title: "Chat App",
             meta: [
                 {charset: 'utf-8'},
-                {name: "viewport", content: "width=device-width, initial-scale=1"},
+                {name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover"},
                 {name: "description", content: "Real Time Chat App"}
-            ],
-            script: [
-                {
-                    children: `
-            (function() {
-              try {
-                const theme = localStorage.getItem('nuxt-color-mode') || 'auto';
-                const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                
-                if (isDark) {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
-              } catch (e) {}
-            })()
-          `,
-                    type: 'text/javascript',
-                },
             ],
         }
     },

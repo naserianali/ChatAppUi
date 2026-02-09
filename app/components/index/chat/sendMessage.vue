@@ -49,7 +49,7 @@ const handleSendMessage = async () => {
 </script>
 
 <template>
-  <div class="p-2 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+  <div class="p-3 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
 
     <Teleport to="#reply-teleport-target">
       <Transition name="slide-up">
@@ -73,26 +73,29 @@ const handleSendMessage = async () => {
     </Teleport>
 
     <form @submit.prevent="handleSendMessage" class="flex items-center gap-x-2">
-      <div class="flex-1">
+      <div class="w-full">
         <BaseInput
             v-model="message"
             label-key="Type a message..."
             icon-name="lucide:message-square"
             placeholder="Write something..."
             size="sm"
+            class=""
             mode="no-label"
             :disabled="!uiStore.activeChatId || isLoading"
         />
       </div>
-      <CustomButton
-          type="submit"
-          label-key="Send"
-          icon-name="lucide:send"
-          variant="primary"
-          size="sm"
-          :loading="isLoading"
-          :disabled="!message.trim() || !uiStore.activeChatId"
-      />
+      <div class="flex-1">
+        <CustomButton
+            type="submit"
+            label-key="Send"
+            icon-name="lucide:send"
+            variant="primary"
+            size="sm"
+            :loading="isLoading"
+            :disabled="!message.trim() || !uiStore.activeChatId"
+        />
+      </div>
     </form>
   </div>
 </template>
