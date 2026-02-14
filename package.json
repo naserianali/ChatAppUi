@@ -23,6 +23,7 @@
     "pinia-plugin-persistedstate": "^4.7.1",
     "pusher-js": "^8.4.0",
     "tailwindcss": "^4.1.18",
+    "uuid": "^13.0.0",
     "vazirmatn": "^33.0.3",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4",

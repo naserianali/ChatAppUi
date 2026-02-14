@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import {useDark, useToggle, onClickOutside} from '@vueuse/core'
-import {getBaseUrl, RouteEnum} from "~/utils/api"
-import {useFileUploader} from "~/composables/useFileUploader"
-import {handleError} from "vue"
+import { useDark, useToggle, onClickOutside } from '@vueuse/core'
+import { getBaseUrl, RouteEnum } from "~/utils/api"
+import { useFileUploader } from "~/composables/useFileUploader"
 
-const {$subscribePush} = useNuxtApp();
+const { $subscribePush } = useNuxtApp();
 const isSubscribed = ref(false);
 const notificationPermission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'default');
-
 const toggleNotifications = async () => {
   if (isSubscribed.value) {
     isSubscribed.value = false;
@@ -44,7 +42,7 @@ const isDark = useDark({
 })
 const toggleTheme = useToggle(isDark)
 
-const {locale, locales, setLocale, t} = useI18n()
+const { locale, locales, setLocale, t } = useI18n()
 const isOpen = ref(false)
 const target = ref(null)
 
@@ -67,7 +65,8 @@ const changeLang = async (code: "fa" | "en") => {
   isOpen.value = false
 }
 
-const {upload, isUploading} = useFileUploader()
+// Using our new chunked uploader
+const { upload, isUploading, progress } = useFileUploader()
 const fileInput = ref<HTMLInputElement | null>(null)
 const user = useCookie("user").value as any;
 const token = useCookie("token").value
@@ -87,10 +86,10 @@ const initialData = {
   username: (user && user.profile) ? user.profile.username : null,
   first_name: user ? user.first_name : null,
   last_name: user ? user.last_name : null,
-  bio: user ? user.profile.bio : null
+  bio: user && user.profile ? user.profile.bio : null
 }
 
-const form = ref<ProfileForm>({...initialData})
+const form = ref<ProfileForm>({ ...initialData })
 const hasChanges = computed(() => JSON.stringify(form.value) !== JSON.stringify(initialData))
 
 const triggerFileInput = () => fileInput.value?.click()
@@ -98,44 +97,60 @@ const triggerFileInput = () => fileInput.value?.click()
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
-    const [file] = target.files
-    if (!file)
-      return
+    const file = target.files[0]
     form.value.avatar_url = URL.createObjectURL(file)
     form.value.avatar = file
   }
 }
 
 const isSubmitting = ref(false)
+
 const handleSave = async () => {
   isSubmitting.value = true
-  const formData = new FormData();
-  const avatarKeys = ["avatar", "avatar_url"]
-
-  for (const key of Object.keys(form.value)) {
-    if (key === "avatar" && form.value[key]) {
-      try {
-        const file = await upload(form.value[key], getBaseUrl(1, RouteEnum.UploadMedia))
-        formData.append(key + "_id", file.data.id);
-      } catch (error) {
-        isSubmitting.value = false
-      }
-    }
-    if (form.value[key] !== initialData[key] && !avatarKeys.includes(key)) {
-      formData.append(key, form.value[key])
-    }
-  }
 
   try {
-    const response = await $fetch(getBaseUrl(1, RouteEnum.UpdateProfile), {
+    const formData = new FormData();
+    const avatarKeys = ["avatar", "avatar_url"]
+
+    // Handle File Upload first
+    if (form.value.avatar) {
+      // Execute chunked upload
+      const uploadResult = await upload<any>(
+          form.value.avatar,
+          getBaseUrl(1, RouteEnum.UploadMedia),
+          { disk: 'public' } // Extra data
+      )
+
+      if (uploadResult && uploadResult.data) {
+        // Use the ID/UUID returned from the final merged chunk
+        formData.append("avatar_id", uploadResult.data.id || uploadResult.data.uuid);
+      } else {
+        throw new Error("File upload failed");
+      }
+    }
+
+    // Append other changed fields
+    for (const key of Object.keys(form.value)) {
+      if (!avatarKeys.includes(key) && form.value[key] !== initialData[key]) {
+        formData.append(key, form.value[key])
+      }
+    }
+
+    // Submit Profile Update
+    const response = await $fetch<any>(getBaseUrl(1, RouteEnum.UpdateProfile), {
       method: "post",
-      headers: {Authorization: `bearer ${token}`, Accept: "application/json"},
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       body: formData
     });
+
     useCookie("user").value = response.data
-    isSubmitting.value = false
+    // Update initial data state to reset hasChanges
+    Object.assign(initialData, JSON.parse(JSON.stringify(form.value)));
+    initialData.avatar = null; // Reset local file reference
+
   } catch (error) {
-    handleError(error)
+    useHandleError(error)
+  } finally {
     isSubmitting.value = false
   }
 }
@@ -219,7 +234,11 @@ const handleSave = async () => {
           <NuxtPicture :imgAttrs="{ class:'w-full h-full object-cover' }" format="webp,avif" :src="form.avatar_url"
                        alt="Profile"/>
         </div>
+        <div v-if="isUploading" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center z-10">
+          <span class="text-white text-sm font-bold">{{ progress }}%</span>
+        </div>
         <div
+            v-else
             class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <Icon name="lucide:camera" class="size-8 text-white"/>
         </div>
@@ -244,7 +263,7 @@ const handleSave = async () => {
           labelKey="Save Changes"
           iconName="lucide:save"
           variant="primary"
-          :disabled="!hasChanges"
+          :disabled="!hasChanges || isUploading"
           :loading="isSubmitting"
           @click="handleSave"
       />
