@@ -7,11 +7,22 @@ import type {UserType} from "~/types/user.type";
 const {t} = useI18n()
 const route = useRoute();
 const googleLoading = ref(false)
+const githubLoading = ref(false)
 definePageMeta({
   layout: false
 });
 const handleGoogleLogin = async () => {
   const redirect = getBaseUrl(1, RouteEnum.GoogleLogin);
+  navigateTo(redirect, {
+    external: true,
+    open: {
+      target: '_self',
+    },
+    redirectCode: 302
+  })
+}
+const handleGitHubLogin = async () => {
+  const redirect = getBaseUrl(1, RouteEnum.GithubLogin);
   navigateTo(redirect, {
     external: true,
     open: {
@@ -92,8 +103,9 @@ onMounted(async () => {
             type="button"
             class="w-full"
             variant="border"
-            disabled
             size="md"
+            :loading="githubLoading"
+            @click="handleGitHubLogin"
         />
         <CustomButton
             labelKey="Gmail"
