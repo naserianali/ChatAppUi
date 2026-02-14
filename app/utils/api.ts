@@ -1,5 +1,7 @@
 export enum RouteEnum {
     Login = 'login',
+    Me = 'me',
+    GoogleLogin = 'googleLogin',
     ConversationList = "conversationList",
     ContactList = "contactList",
     CreateContact = "createContact",
@@ -30,6 +32,8 @@ export function getBaseUrl(version: number = 1, route: RouteEnum, params?: Recor
 
 export const routes = {
     [RouteEnum.Login]: "auth/login",
+    [RouteEnum.Me]: "auth/me",
+    [RouteEnum.GoogleLogin]: "auth/google",
     [RouteEnum.ContactList]: "application/contacts",
     [RouteEnum.CreateContact]: "application/contacts",
     [RouteEnum.ConversationList]: "application/conversations",

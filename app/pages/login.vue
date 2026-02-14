@@ -1,15 +1,59 @@
 <script setup lang="ts">
 import LoginForm from "~/components/auth/LoginForm.vue";
+import {getBaseUrl, RouteEnum} from "~/utils/api";
+import {useHandleError} from "~/utils/HandleError";
+import type {UserType} from "~/types/user.type";
 
-const { t } = useI18n()
-
+const {t} = useI18n()
+const route = useRoute();
+const googleLoading = ref(false)
 definePageMeta({
   layout: false
+});
+const handleGoogleLogin = async () => {
+  const redirect = getBaseUrl(1, RouteEnum.GoogleLogin);
+  navigateTo(redirect, {
+    external: true,
+    open: {
+      target: '_self',
+    },
+    redirectCode: 302
+  })
+}
+
+interface IResponse {
+  success: boolean
+  data: UserType
+}
+
+onMounted(async () => {
+  if (route.query.token) {
+    try {
+      googleLoading.value = true
+      const token = route.query.token as string
+      useCookie("token").value = token;
+      const response = await $fetch<IResponse>(getBaseUrl(1, RouteEnum.Me), {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          Authorization: `bearer ${token}`
+        }
+      });
+      useCookie("user").value = JSON.stringify(response.data)
+    } catch (e) {
+      googleLoading.value = false
+      useHandleError(e)
+    } finally {
+      googleLoading.value = false
+      navigateTo('/')
+    }
+  }
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-white dark:bg-neutral-950 flex flex-col justify-center items-center p-4 transition-colors duration-300">
+  <div
+      class="min-h-screen bg-white dark:bg-neutral-950 flex flex-col justify-center items-center p-4 transition-colors duration-300">
 
     <h1 class="text-3xl flex items-center justify-center gap-2 text-primary-600 font-extrabold mb-2">
       <Icon name="lucide:message-circle" class="size-9"/>
@@ -49,6 +93,7 @@ definePageMeta({
             class="w-full"
             variant="border"
             disabled
+            size="md"
         />
         <CustomButton
             labelKey="Gmail"
@@ -56,7 +101,9 @@ definePageMeta({
             type="button"
             class="w-full"
             variant="border"
-            disabled
+            size="md"
+            :loading="googleLoading"
+            @click="handleGoogleLogin"
         />
       </div>
     </div>

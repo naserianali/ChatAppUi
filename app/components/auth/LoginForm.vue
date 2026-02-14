@@ -81,6 +81,7 @@ const handelLogin = async (e: SubmitEvent) => {
           :loading="isLoading"
           :disabled="isDisabled"
           variant="primary"
+          size="md"
       />
     </div>
   </form>
