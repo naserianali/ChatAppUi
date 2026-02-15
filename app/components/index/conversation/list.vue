@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {getBaseUrl, RouteEnum} from "~/utils/api";
-import {useUiStore} from "~/stores/ui";
+import {type IUiState, useUiStore} from "~/stores/ui";
 import type {UserType} from "~/types/user.type";
 import type {ConversationType} from "~/types/conversation.type";
 import type {PaginationResponseType} from "~/types/response.type";
@@ -12,7 +12,7 @@ const {$echo} = useNuxtApp()
 
 const token = useCookie('token').value
 const user = useCookie<UserType | undefined>('user').value
-
+const uiCookie = useCookie<string | IUiState>("ui")
 if (!token) {
   navigateTo('/login');
 }
@@ -30,6 +30,12 @@ const {
   },
 })
 onMounted(() => {
+  if (uiCookie.value) {
+    uiStore.$patch(uiCookie.value)
+  }
+  uiStore.$subscribe((_, state) => {
+    uiCookie.value = JSON.stringify(state)
+  })
   if (user && user.id) {
     $echo.private(`users.${user.id}`)
         .subscribed(() => {
@@ -49,8 +55,6 @@ onUnmounted(() => {
 
 const openConversation = (conv: ConversationType, user: UserType | null) => {
   uiStore.setActiveChat(conv.id, user, conv.meta);
-  useCookie("activeChatId").value = conv.id
-
 }
 const getOtherUser = (conversation: ConversationType) => {
   if (!user)

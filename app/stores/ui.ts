@@ -2,8 +2,20 @@ import {defineStore} from 'pinia'
 import type {UserType} from "~/types/user.type";
 import type {ConversationMetaType} from "~/types/conversation.type";
 
+export interface IUiState {
+    sidebarView: string
+    activeChatId: string | null,
+    user: UserType | null
+    name: string | null
+    chatScrollPositions: Record<string, number>
+    isInfoSidebarOpen: boolean
+    activeChatUser: null
+    conversationMeta: ConversationMetaType | null
+    messageCache: Record<string, any[]>
+}
+
 export const useUiStore = defineStore('ui', {
-    state: () => ({
+    state: (): IUiState => ({
         sidebarView: 'conversations',
         activeChatId: null as string | null,
         user: null as UserType | null,
