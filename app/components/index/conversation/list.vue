@@ -2,6 +2,8 @@
 import {getBaseUrl, RouteEnum} from "~/utils/api";
 import {useUiStore} from "~/stores/ui";
 import type {UserType} from "~/types/user.type";
+import type {ConversationType} from "~/types/conversation.type";
+import type {PaginationResponseType} from "~/types/response.type";
 
 
 const {t} = useI18n();
@@ -15,7 +17,12 @@ if (!token) {
   navigateTo('/login');
 }
 
-const {data: response, pending, refresh} = useFetch(getBaseUrl(1, RouteEnum.ConversationList), {
+
+const {
+  data: response,
+  pending,
+  refresh
+} = useFetch<PaginationResponseType<ConversationType[]>>(getBaseUrl(1, RouteEnum.ConversationList), {
   key: "conversations",
   headers: {
     Accept: 'application/json',
@@ -41,8 +48,14 @@ onUnmounted(() => {
   }
 })
 
-const openConversation = (id: string, user: UserType) => {
-  uiStore.setActiveChat(id, user);
+const openConversation = (conv: ConversationType, user: UserType | null) => {
+  uiStore.setActiveChat(conv.id, user, conv.meta);
+}
+const getOtherUser = (conversation: ConversationType) => {
+  if (!user)
+    return null;
+  const otherUser = conversation.users?.find((u: UserType) => u.id !== user?.id);
+  return otherUser || null;
 }
 </script>
 
@@ -61,7 +74,7 @@ const openConversation = (id: string, user: UserType) => {
       <li
           v-for="conv in response?.data"
           :key="conv.id"
-          @click="openConversation(conv.id , conv.users?.filter((u: any) => u.id !== user?.id)[0])"
+          @click="openConversation(conv , getOtherUser(conv))"
           :class="[
              'p-4 border rounded-xl cursor-pointer flex justify-between gap-3 transition-all duration-200 active:scale-[0.99]',
              uiStore.activeChatId === conv.id

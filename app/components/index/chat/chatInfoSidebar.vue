@@ -3,7 +3,7 @@ import {storeToRefs} from 'pinia'
 import {useUiStore} from "~/stores/ui"
 
 const uiStore = useUiStore()
-const {user, isInfoSidebarOpen, name} = storeToRefs(uiStore)
+const {user, isInfoSidebarOpen, conversationMeta} = storeToRefs(uiStore)
 const {t} = useI18n()
 </script>
 
@@ -43,11 +43,37 @@ const {t} = useI18n()
         </div>
       </div>
 
-      <div class="bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl">
+      <div class="bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl mb-3">
         <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ t('Bio') }}</label>
         <p class="text-sm dark:text-gray-300 mt-1 leading-relaxed text-start">
           {{ user.profile?.bio || t('No bio available') }}
         </p>
+      </div>
+      <div class="grid grid-cols-2 gap-x-3">
+        <div class="bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl mb-3">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ t('Media Count') }}</label>
+          <p class="text-sm dark:text-gray-300 mt-1 leading-relaxed text-start">
+            {{ conversationMeta?.media_count || 0 }}
+          </p>
+        </div>
+        <div class="bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl mb-3">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ t('Files Count') }}</label>
+          <p class="text-sm dark:text-gray-300 mt-1 leading-relaxed text-start">
+            {{ conversationMeta?.files_count || 0 }}
+          </p>
+        </div>
+        <div class="bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl mb-3">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ t('Link Count') }}</label>
+          <p class="text-sm dark:text-gray-300 mt-1 leading-relaxed text-start">
+            {{ conversationMeta?.links_count || 0 }}
+          </p>
+        </div>
+        <div class="bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl mb-3">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{{ t('Voice Count') }}</label>
+          <p class="text-sm dark:text-gray-300 mt-1 leading-relaxed text-start">
+            {{ conversationMeta?.voice_count || 0 }}
+          </p>
+        </div>
       </div>
     </div>
 

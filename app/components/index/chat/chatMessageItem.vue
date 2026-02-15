@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useIntersectionObserver } from '@vueuse/core'
-import { useChatStore } from "~/stores/chatStore"
+import {useIntersectionObserver} from '@vueuse/core'
+import {useChatStore} from "~/stores/chatStore"
 import type MessageType from "~/types/message.type"
-import { useUiStore } from "~/stores/ui"
+import {useUiStore} from "~/stores/ui"
 
-const { setReplayMessage } = useChatStore()
-const { activeChatId } = useUiStore()
+const {setReplayMessage} = useChatStore()
+const {activeChatId} = useUiStore()
 
 const props = defineProps<{
   message?: MessageType
@@ -43,12 +43,12 @@ const formatSize = (bytes: number) => {
 
 useIntersectionObserver(
     target,
-    ([{ isIntersecting }]) => {
+    ([{isIntersecting}]) => {
       if (!props.loading && isIntersecting && !props.isOwn && !isRead.value && props.message) {
         emit('visible', props.message.id)
       }
     },
-    { threshold: 0.2 }
+    {threshold: 0.2}
 )
 
 const handleReplay = (message: any) => {
@@ -108,7 +108,7 @@ const handleReplay = (message: any) => {
                 v-if="!loadedMedia[file.uuid]"
                 class="absolute inset-0 z-10 flex items-center justify-center bg-gray-200 dark:bg-gray-700 animate-pulse"
             >
-              <Icon name="lucide:image" class="size-6 opacity-20" />
+              <Icon name="lucide:image" class="size-6 opacity-20"/>
             </div>
             <NuxtPicture
                 format="avif,webp"
@@ -130,7 +130,7 @@ const handleReplay = (message: any) => {
                 controls
                 preload="none"
                 :poster="file.thumbnail_url"
-                class="w-full max-h-[300px] bg-black block"
+                class="w-full max-h-[300px]  aspect-video bg-black block"
             >
               <source :src="file.url" :type="file.mime_type">
             </video>
@@ -139,7 +139,7 @@ const handleReplay = (message: any) => {
           <template v-else-if="getFileType(file.mime_type) === 'audio'">
             <div class="p-3 w-full flex flex-col gap-2">
               <div class="flex items-center gap-2 overflow-hidden">
-                <Icon name="lucide:headphones" class="size-4 shrink-0 opacity-70" />
+                <Icon name="lucide:headphones" class="size-4 shrink-0 opacity-70"/>
                 <span class="text-[10px] truncate opacity-80 font-medium">{{ file.title }}</span>
               </div>
               <audio controls preload="none" class="w-full h-8 scale-95 origin-left">
@@ -164,7 +164,7 @@ const handleReplay = (message: any) => {
                 <span class="text-xs font-medium truncate">{{ file.title }}</span>
                 <span class="text-[10px] opacity-60">{{ formatSize(file.size) }}</span>
               </div>
-              <Icon name="lucide:download" class="size-4 opacity-40 shrink-0" />
+              <Icon name="lucide:download" class="size-4 opacity-40 shrink-0"/>
             </a>
           </template>
         </div>
@@ -173,7 +173,7 @@ const handleReplay = (message: any) => {
       <span v-if="message.body" class="whitespace-pre-wrap leading-relaxed">{{ message.body }}</span>
 
       <div :class="['text-[10px] mt-1 flex items-center gap-1 opacity-70', isOwn ? 'justify-end' : 'justify-start']">
-        {{ new Date(message.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }) }}
+        {{ new Date(message.created_at).toLocaleTimeString('fa-IR', {hour: '2-digit', minute: '2-digit'}) }}
 
         <template v-if="isOwn">
           <Icon
