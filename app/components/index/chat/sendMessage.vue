@@ -188,14 +188,20 @@ const retryUpload = async () => {
 
     <form @submit.prevent="handleSendMessage" class="flex items-center gap-x-2">
       <input type="file" ref="fileInput" class="hidden" multiple @change="handleFileChange" />
-      <button type="button" @click="triggerFileSelect" :disabled="isLoading || isUploading" class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full flex-shrink-0">
-        <Icon name="lucide:paperclip" class="size-5" />
-      </button>
+      <CustomButton
+        label-key=""
+        variant="ghost"
+        size="icon"
+        :disabled="isLoading || isUploading"
+        @click="triggerFileSelect"
+        icon-name="lucide:paperclip"
+      />
       <div class="flex-1 min-w-0">
         <BaseInput v-model="message" label-key="Type a message..." icon-name="lucide:message-square" placeholder="Write something..." size="sm" mode="no-label" :disabled="!uiStore.activeChatId || isLoading || isUploading" />
       </div>
       <div class="flex-none">
-        <CustomButton type="submit" label-key="Send" icon-name="lucide:send" variant="primary" size="sm" :loading="isLoading" :disabled="(!message.trim() && selectedFiles.length === 0) || !uiStore.activeChatId || isUploading" />
+        <CustomButton type="submit" label-key="Send" icon-name="lucide:send" variant="primary" size="sm" :loading="isLoading"
+                      :disabled="(!message.trim() && selectedFiles.length === 0) || !uiStore.activeChatId || isUploading" />
       </div>
     </form>
   </div>

@@ -19,7 +19,7 @@ function getBaseRoute() {
     return useRuntimeConfig().public.apiBase;
 }
 
-export function getBaseUrl(version: number = 1, route: RouteEnum, params?: Record<string, string | number>) {
+export function getBaseUrl(version: number = 1, route: RouteEnum, params?: Record<string, string | number | null>) {
     const url = getBaseRoute() + `/v${version}/`
     let path = routes[route] ?? ''
     if (params) {

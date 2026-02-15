@@ -22,13 +22,14 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
-const { t } = useI18n()
+const {t} = useI18n()
 
 const isPasswordVisible = ref(false)
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:modelValue', target.value)
+  if (target)
+    emit('update:modelValue', target.value)
 }
 
 const inputType = computed(() => {

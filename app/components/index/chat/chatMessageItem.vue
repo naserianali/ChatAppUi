@@ -170,7 +170,7 @@ const handleReplay = (message: any) => {
         </div>
       </div>
 
-      <span v-if="message.body" class="whitespace-pre-wrap leading-relaxed">{{ message.body }}</span>
+      <span v-if="message.body" class="whitespace-pre-wrap leading-relaxed break-words overflow-hidden">{{ message.body }}</span>
 
       <div :class="['text-[10px] mt-1 flex items-center gap-1 opacity-70', isOwn ? 'justify-end' : 'justify-start']">
         {{ new Date(message.created_at).toLocaleTimeString('fa-IR', {hour: '2-digit', minute: '2-digit'}) }}

@@ -18,7 +18,7 @@ export const useUiStore = defineStore('ui', {
         setView(view: 'conversations' | 'contacts') {
             this.sidebarView = view
         },
-        setActiveChat(id: string | null, user: UserType | null , conversationMeta : ConversationMetaType | null) {
+        setActiveChat(id: string | null, user: UserType | null, conversationMeta: ConversationMetaType | null) {
             if (id === null) {
                 this.activeChatId = null
                 this.name = null

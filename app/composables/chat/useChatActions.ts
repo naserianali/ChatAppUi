@@ -27,7 +27,7 @@ export const useChatActions = (
 
         try {
             const res = await $fetch<any>(getBaseUrl(1, RouteEnum.GetConversation, {conversationId: state.activeChatId.value}), {
-                params: {cursor, per_page: 10, direction},
+                params: {cursor, per_page: 50, direction},
                 headers: {Authorization: 'Bearer ' + state.token}
             })
 

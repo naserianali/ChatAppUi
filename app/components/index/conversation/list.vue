@@ -36,7 +36,6 @@ onMounted(() => {
           console.log("Successfully subscribed to private channel!");
         })
         .listen(".new.conversation", async (event: any) => {
-          console.log(event)
           await refresh();
         })
   }
@@ -50,6 +49,8 @@ onUnmounted(() => {
 
 const openConversation = (conv: ConversationType, user: UserType | null) => {
   uiStore.setActiveChat(conv.id, user, conv.meta);
+  useCookie("activeChatId").value = conv.id
+
 }
 const getOtherUser = (conversation: ConversationType) => {
   if (!user)
