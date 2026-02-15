@@ -15,6 +15,7 @@ interface ILoginResponse {
   };
 }
 
+const {$echo} = useNuxtApp();
 const phoneValue = ref<string>('');
 const passwordValue = ref<string>('');
 const isLoading = ref(false);
@@ -37,7 +38,11 @@ const handelLogin = async (e: SubmitEvent) => {
     });
     isLoading.value = false;
     const cookie = useCookie('token')
-    cookie.value = res.data.token
+    const token = res.data.token;
+    console.log(token)
+    cookie.value = token
+    $echo.disconnect();
+    $echo.connect();
     const user = useCookie("user")
     user.value = JSON.stringify(res.data.user)
     phoneValue.value = ""
@@ -45,6 +50,7 @@ const handelLogin = async (e: SubmitEvent) => {
     navigateTo('/')
   } catch (err) {
     useHandleError(err)
+    console.log(err)
     isLoading.value = false;
   }
 }
