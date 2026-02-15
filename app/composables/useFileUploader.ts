@@ -1,31 +1,37 @@
-import {useHandleError} from "~/utils/HandleError";
+import { useHandleError } from "~/utils/HandleError";
 import { v4 as uuidv4 } from 'uuid';
 
 export const useFileUploader = () => {
     const isUploading = ref(false)
     const progress = ref(0)
     const error = ref<any>(null)
+    const mediaId = ref<string | null>(null)
+    const currentChunkIndex = ref(0) // Track current progress for resuming
     const token = useCookie("token").value
-    const CHUNK_SIZE = 5 * 1024 * 1024;
+    const CHUNK_SIZE = 3 * 1024 * 1024;
+
     const upload = async <T>(
         file: File,
         endpoint: string,
-        additionalData: Record<string, any> = {}
+        additionalData: Record<string, any> = {},
+        resumeFromIndex = 0
     ): Promise<T | null> => {
         isUploading.value = true
         error.value = null
-        progress.value = 0
+        mediaId.value = null
         const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
         const dzuuid = uuidv4()
-        let lastResponse: T | null = null
+        let lastResponse: any = null
+
         try {
-            for (let index = 0; index < totalChunks; index++) {
+            for (let index = resumeFromIndex; index < totalChunks; index++) {
+                currentChunkIndex.value = index
                 const start = index * CHUNK_SIZE
                 const end = Math.min(start + CHUNK_SIZE, file.size)
                 const chunk = file.slice(start, end)
                 const formData = new FormData();
                 formData.append("file", chunk);
-                formData.append('dzuuid', dzuuid.toString());
+                formData.append('dzuuid', dzuuid);
                 formData.append('dzchunkindex', index.toString());
                 formData.append('dztotalchunkcount', totalChunks.toString());
                 formData.append('dzfilename', file.name)
@@ -38,15 +44,18 @@ export const useFileUploader = () => {
                         Accept: "application/json",
                         Authorization: `Bearer ${token}`
                     },
-                    body: formData
+                    body: formData,
                 })
+
                 progress.value = Math.floor(((index + 1) / totalChunks) * 100)
             }
+            if (lastResponse?.data) {
+                mediaId.value = lastResponse.data.id
+            }
+            currentChunkIndex.value = 0
             return lastResponse
         } catch (err: any) {
             error.value = err
-            useHandleError(err)
-            console.error('Upload Error:', err)
             return null
         } finally {
             isUploading.value = false
@@ -57,6 +66,8 @@ export const useFileUploader = () => {
         upload,
         isUploading,
         progress,
-        error
+        error,
+        mediaId,
+        currentChunkIndex
     }
 }

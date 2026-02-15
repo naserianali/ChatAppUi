@@ -15,29 +15,16 @@ export const useChatRealtime = (
     const setupEcho = (id: string) => {
         $echo.private(`conversations.${id}`)
             .listen('.MessageSent', (e: any) => {
-                const newMsg = e.message || e.data?.message || e.conversation?.last_message || e
-                if (!newMsg || !newMsg.id) return
-                if (newMsg.parent_id && !newMsg.parent) {
-                    const localParent = state.messages.value.find(m => m.id === newMsg.parent_id)
-                    if (localParent) {
-                        newMsg.parent = localParent
-                    }
+                const newMsg = e.message || e;
+                const index = state.messages.value.findIndex(m => m.id === newMsg.id);
+                if (index !== -1) {
+                    state.messages.value[index] = { ...state.messages.value[index], ...newMsg };
+                } else {
+                    state.messages.value.push(newMsg);
                 }
-                if (state.hasMoreNewer.value) {
-                    if (newMsg.sender_id === state.user?.id) {
-                        actions.handleMessageSent()
-                    }
-                    return
-                }
-
-                const exists = state.messages.value.some(m => m.id === newMsg.id)
-                if (exists) return
-
-                state.messages.value.push(newMsg)
-
-                if (newMsg.sender_id === state.user?.id || !state.hasMoreNewer.value) {
-                    actions.scrollToBottom('smooth')
-                }
+                nextTick(() => {
+                    actions.scrollToBottom('smooth');
+                });
             })
             .listen('.MessageReadEvent', (e: any) => {
                 if (String(e.user_id) !== String(state.user?.id)) {

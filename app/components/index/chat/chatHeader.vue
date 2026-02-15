@@ -57,8 +57,6 @@ const timeAgo = useTimeAgo(displayLastSeen)
               v-if="user?.profile?.avatar?.url"
               :src="user.profile.avatar.url"
               :alt="user.name || 'User avatar'"
-              width="100"
-              height="100"
               format="avif,webp"
               :img-attrs="{ class: 'h-full w-full object-cover' }"
           />
