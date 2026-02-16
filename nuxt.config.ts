@@ -52,8 +52,8 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            apiBase: "http://192.168.0.189:8000/api",
-            broadCastUrl: "http://192.168.0.189:8000",
+            apiBase: "http://192.168.1.144:4000/api",
+            broadCastUrl: "http://192.168.1.144:4000",
             maxFileSize: 5 * 1024 * 1024,
             VAPID_PUBLIC: "BCn-FvfzQeiiaUunVS_vk-ZG2m-Oaf-WramJMJCr8B0c4gCup1KbX-HCswsR9yYJ5YN6r-1d82abvzdUU6LE1N0",
         },
