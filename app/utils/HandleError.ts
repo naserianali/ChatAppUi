@@ -1,8 +1,8 @@
-import {useToast} from "vue-toastification";
+import Toast from 'vue-toastification'
 
 export const useHandleError = (error: any) => {
   try {
-    const toast = useToast();
+    const { useToast } = Toast
     const errors = error?.data?.errors
     if (errors && typeof errors === 'object') {
       Object.keys(errors).forEach((key: string) => {
